@@ -10,7 +10,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface MarcaRepository extends JpaRepository {
+public interface MarcaRepository extends JpaRepository<Marca, Long> {
     Optional<Marca> findByNombre(String nombre);
     List<Marca> findByEstado(EstadoEnum estado);
 }

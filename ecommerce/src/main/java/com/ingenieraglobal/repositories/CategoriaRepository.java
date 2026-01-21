@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long>{
     Optional<Categoria>findBySlug(String slug);
-    List<Categoria>findbyCategorias(EstadoEnum estado);
+    List<Categoria>findByEstadoOrderByOrden(EstadoEnum estado);
 }
