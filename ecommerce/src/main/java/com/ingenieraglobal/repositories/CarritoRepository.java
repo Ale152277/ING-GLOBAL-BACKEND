@@ -14,9 +14,9 @@ import java.util.Optional;
 
 @Repository
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
-    @Query("SELECT c FROM Carrito WHERE c.usuario.id = :usuarioId AND c.estado = :estado")
+    @Query("SELECT c FROM Carrito c WHERE c.usuario.id = :usuarioId AND c.estado = :estado")
     Optional<Carrito> findCarritoActivoByUsuario(
-            @Param("UsuarioId") Long usuarioId,
+            @Param("usuarioId") Long usuarioId,
             @Param("estado") EstadoCarritoEnum estado);
 
     List<Carrito> findByUsuarioId(Long usuarioId);
