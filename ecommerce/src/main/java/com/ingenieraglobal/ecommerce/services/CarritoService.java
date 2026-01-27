@@ -41,10 +41,7 @@ public class CarritoService {
         Usuario usuario = usuarioRepository.findById(usuarioId)
             .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
-        Optional<Carrito> carrito = carritoRepository.findCarritoActivoByUsuario(
-            usuarioId, 
-            EstadoCarritoEnum.ACTIVO
-        );
+        Optional<Carrito> carrito = carritoRepository.findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO);
         
         if (carrito.isEmpty()) {
             Carrito nuevoCarrito = new Carrito(usuario);

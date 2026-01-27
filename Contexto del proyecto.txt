@@ -1,0 +1,206 @@
+INGENIERA GLOBAL E-COMMERCE
+Este proyecto será el desarrollo de una pagina web-ecommerce para el empresa peruana Ingeniera Global Grupo IG: https://www.ingenieriaglobalperu.com/ 
+Ya he estado haciendo una avance a todo lo que se refiere con el frontend usando el framework de angular 20 con la arquitectura modular y usando bootstrap, 
+tambien los awesome icon font, mi estructura de frontend quedó de la siguiente manera: 
+
+project-root/
+├── public/
+│   └── assets/
+│       ├── banners/
+│       ├── nosotros/
+│       ├── payment/
+│       ├── productos/
+│       ├── icons/
+│       │   ├── cart-shop.png
+│       │   ├── discount.png
+│       │   ├── heart.png
+│       │   └── ...
+│       ├── logo.jpg
+│       └── favicon.ico
+│
+├── src/
+│   ├── app/
+│   │
+│   │   ├── core/                     # 🔒 Infraestructura global
+│   │   │   ├── guards/
+│   │   │   │   ├── auth.guard.ts
+│   │   │   │   └── guest.guard.ts
+│   │   │   ├── services/
+│   │   │   │   ├── api.service.ts
+│   │   │   │   └── auth.service.ts
+│   │   │   └── core.module.ts
+│   │
+│   │   ├── data/                     # 📦 Data mock / seed / constantes
+│   │   │   └── producto.data.ts
+│   │
+│   │   ├── models/                   # 📘 Modelos de dominio
+│   │   │   ├── producto.model.ts
+│   │   │   ├── categoria.model.ts
+│   │   │   ├── carrito.model.ts
+│   │   │   ├── cuenta.model.ts
+│   │   │   └── usuario.model.ts
+│   │
+│   │   ├── shared/                   # ♻️ Reutilizable (UI + utils)
+│   │   │   ├── components/
+│   │   │   │   ├── header/
+│   │   │   │   ├── navbar/
+│   │   │   │   └── footer/
+│   │   │   └── pipes/                # (opcional futuro)
+│   │
+│   │   ├── features/                 # 🚀 Módulos funcionales
+│   │   │
+│   │   │   ├── home/
+│   │   │   │   ├── components/
+│   │   │   │   ├── services/
+│   │   │   │   └── home.component.ts
+│   │   │
+│   │   │   ├── auth/
+│   │   │   │   ├── pages/
+│   │   │   │   └── services/
+│   │   │
+│   │   │   ├── productos/
+│   │   │   │   ├── pages/
+│   │   │   │   │   └── productos/
+│   │   │   │   │       ├── productos.component.ts
+│   │   │   │   │       ├── productos.html
+│   │   │   │   │       └── productos.css
+│   │   │   │   ├── components/
+│   │   │   │   └── services/
+│   │   │
+│   │   │   ├── carrito/
+│   │   │   │   ├── pages/
+│   │   │   │   ├── components/
+│   │   │   │   └── services/
+│   │   │
+│   │   │   ├── cuenta/
+│   │   │   │   ├── pages/
+│   │   │   │   └── services/
+│   │   │
+│   │   │   └── nosotros/
+│   │   │       └── pages/
+│   │   │           └── nosotros/
+│   │   │               ├── nosotros.component.ts
+│   │   │               ├── nosotros.html
+│   │   │               └── nosotros.css
+│   │
+│   │   ├── app.routes.ts             # 🧭 Rutas principales
+│   │   ├── app.config.ts              # ⚙️ Config standalone
+│   │   ├── app.component.ts
+│   │   ├── app.html
+│   │   └── app.css
+│
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── variables.css
+│
+│   ├── index.html
+│   ├── main.ts
+│   └── main.server.ts
+│
+├── angular.json
+├── package.json
+├── tsconfig.json
+└── README.md
+
+Para el backend que ya se ha avanzado una gran parte: enums, servicios, controllers, dtos, models, repositories, todas estas carpetas ya tienen contenido y logica, 
+no obstante, como se ve en la estructura del backend, las carpetas exceptions, config y utils, que tienen archivos dentro, aun no se han tocado o modificado. 
+Te estaré mandando una foto de mi modelo de base de datos para que tengas todo en detalle (FACTURA Y VENTA SON TABLAS QUE POR AHORA NO SE VAN A TOCAR POR AHORA, EN EL FUTURO CAPAZ, ESO ES POR LA SIGUIENTE RAZÓN). 
+Esta pagina funcionará de la siguiente manera, los usuarios podrán iniciar sesion y navegar por la tienda para ver o comprar productos a su gusto, la cuestion es la 
+siguiente, al momento que van a su carrito y le den a comprar los productos, serán redirigidos al whatsapp de la empresa para coordinar de manera interna todo ese movimiento. 
+
+Este proyecto es un **backend de e-commerce** desarrollado con **Spring Boot**, siguiendo una arquitectura por capas (**Controller → Service → Repository**) y usando:
+
+* Spring Web (REST API)
+* Spring Data JPA (persistencia)
+* Spring Security + JWT (autenticación y autorización)
+* DTOs para separar modelo interno y datos expuestos
+* Manejo global de excepciones
+
+El objetivo es ofrecer una API REST clara, segura y mantenible.
+
+---
+
+## 📁 Estructura de paquetes
+
+```
+src/main/java/com/ingenieraglobal/ecommerce
+│
+├── config
+│   ├── JpaConfig.java (nada aun)
+│   ├── SecurityConfig.java (listo)
+│   └── WebConfig.java (nada aun)
+│
+├── controllers
+│   ├── AuthController.java (listo)
+│   ├── UsuarioController.java(listo)
+│   ├── ProductoController.java(listo)
+│   ├── CategoriaController.java(listo)
+│   ├── MarcaController.java(listo)
+│   └── CarritoController.java(listo)
+│
+├── dtos
+│   ├── request
+│   │   ├── LoginRequest.java (listo)
+│   │   ├── RegistroUsuarioRequest.java(listo)
+│   │   └── AgregarAlCarritoRequest.java (listo)
+│   │
+│   ├── response
+│   │   ├── ApiResponse.java (listo)
+│   │   ├── PageResponse.java (listo)
+│   │   └── TokenResponse.java(listo)
+│   │
+│   ├── UsuarioDTO.java (nada aun)
+│   ├── ProductoDTO.java (listo)
+│   ├── CategoriaDTO.java (listo)
+│   ├── CarritoDTO.java (listo)
+│   └── DetalleCarritoDTO.java (listo)
+│
+├── exceptions
+│   ├── GlobalExceptionHandler.java (listo)
+│   ├── RecursoNoEncontradoException.java (listo)
+│   └── ValidationException.java (listo)
+│
+├── models
+│   ├── Usuario.java (listo)
+│   ├── Producto.java (listo)
+│   ├── Categoria.java (listo)
+│   ├── Marca.java (listo)
+│   ├── Carrito.java (listo) 
+│   ├── DetalleCarrito.java (listo) 
+│   │
+│   └── enums
+│       ├── RolEnum.java(listo)
+│       ├── EstadoEnum.java (listo)
+│       └── EstadoCarritoEnum.java (listo)
+│
+├── repositories
+│   ├── UsuarioRepository.java (listo)
+│   ├── ProductoRepository.java (listo)
+│   ├── CategoriaRepository.java (listo)
+│   ├── MarcaRepository.java (listo)
+│   ├── CarritoRepository.java (listo)
+│   └── DetalleCarritoRepository.java (listo)
+│
+├── services
+│   ├── AuthService.java(aun nada)
+│   ├── UsuarioService.java (listo)
+│   ├── ProductoService.java (listo)
+│   ├── CategoriaService.java (listo)
+│   └── CarritoService.java(listo)
+│
+├── utils
+│   ├── JwtUtils.java(listo)
+│   └── PasswordUtils.java(listo)
+│
+└── IngenieriaGlobalEcommerceApplication.java
+```
+
+Anteriormente (en otro chat que ya no puedo usar) recomendó que llenaramos la base de datos de una vez, pero no se si tu necesites mas contexto o necesites revisar algunos 
+archivos para tener un mejor panorama del proyecto o la logica 
+
+
+Implementar las carpetas pendientes (config, exceptions, utils) - esto daría solidez al backend
+Llenar la base de datos con categorías, marcas y productos de prueba
+Revisar archivos específicos para asegurar que todo esté bien integrado
+Validar la integración entre frontend y backend
+Implementar TokenResponse y completar los DTOs
