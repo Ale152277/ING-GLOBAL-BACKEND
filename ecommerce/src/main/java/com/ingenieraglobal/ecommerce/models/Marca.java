@@ -28,6 +28,9 @@ public class Marca {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "updated_at", nullable = false, updatable = false)
+    private LocalDateTime updateAt = LocalDateTime.now();
+
     @OneToMany(mappedBy = "marca")
     private List<Producto> productos;
 

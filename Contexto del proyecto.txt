@@ -103,7 +103,7 @@ project-root/
 └── README.md
 
 Para el backend que ya se ha avanzado una gran parte: enums, servicios, controllers, dtos, models, repositories, todas estas carpetas ya tienen contenido y logica, 
-no obstante, como se ve en la estructura del backend, las carpetas exceptions, config y utils, que tienen archivos dentro, aun no se han tocado o modificado. 
+no obstante.
 Te estaré mandando una foto de mi modelo de base de datos para que tengas todo en detalle (FACTURA Y VENTA SON TABLAS QUE POR AHORA NO SE VAN A TOCAR POR AHORA, EN EL FUTURO CAPAZ, ESO ES POR LA SIGUIENTE RAZÓN). 
 Esta pagina funcionará de la siguiente manera, los usuarios podrán iniciar sesion y navegar por la tienda para ver o comprar productos a su gusto, la cuestion es la 
 siguiente, al momento que van a su carrito y le den a comprar los productos, serán redirigidos al whatsapp de la empresa para coordinar de manera interna todo ese movimiento. 
@@ -128,7 +128,9 @@ src/main/java/com/ingenieraglobal/ecommerce
 ├── config
 │   ├── JpaConfig.java (nada aun)
 │   ├── SecurityConfig.java (listo)
+│   ├── JwtAuthenticationFilter(listo)
 │   └── WebConfig.java (nada aun)
+│
 │
 ├── controllers
 │   ├── AuthController.java (listo)

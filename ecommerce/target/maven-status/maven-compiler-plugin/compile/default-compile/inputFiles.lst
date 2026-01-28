@@ -1,4 +1,5 @@
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\JpaConfig.java
+D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\JwtAuthenticationFilter.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\SecurityConfig.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\WebConfig.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\controllers\AuthController.java

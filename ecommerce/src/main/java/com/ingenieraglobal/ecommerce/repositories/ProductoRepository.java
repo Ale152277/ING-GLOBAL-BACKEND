@@ -23,7 +23,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query("""
             SELECT p FROM Producto p
             WHERE p.estado = :estado
-            AND(:categoriaId IS NULL OR p.categoria.id = :categoriaID)
+            AND(:categoriaId IS NULL OR p.categoria.id = :categoriaId)
             AND(:marcaId IS NULL OR p.marca.id = :marcaId)
             AND(p.precio BETWEEN :precioMin AND :precioMax)
             AND(:soloStock = false OR p.stock >0)
@@ -35,7 +35,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
             @Param("marcaId") Long marcaId,
             @Param("precioMin") BigDecimal precioMin,
             @Param("precioMax") BigDecimal precioMax,
-            @Param("SoloStock") Boolean soloStock,
+            @Param("soloStock") Boolean soloStock,
             Pageable pageable);
 
     @Query("""
