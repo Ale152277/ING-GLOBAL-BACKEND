@@ -20,6 +20,41 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    
+
+    @GetMapping("/buscar")
+    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> buscar(
+        @RequestParam String q,
+        @RequestParam (defaultValue = "1") int page,
+        @RequestParam (defaultValue = "12") int size
+    ){
+        Page<ProductoDTO> result = productoService.buscar(q, page, size);
+        PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
+        return ResponseEntity.ok(ApiResponse.success(pageResponse));
+    }
+
+    @GetMapping("/ofertas")
+    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerOfertas(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "12") int size
+    ){
+        Page<ProductoDTO> result = productoService.obtenerConDescuento(page, size);
+        PageResponse<ProductoDTO> pagerResponse = new PageResponse<>(result);
+        return ResponseEntity.ok(ApiResponse.success(pagerResponse));
+    }
+
+
+    @GetMapping("/etiqueta/{etiqueta}")
+    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerPorEitqueta(
+        @PathVariable String eitqueta,
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "12") int size
+    ){
+        Page<ProductoDTO> result = productoService.obtenerPorEtiqueta(eitqueta, page, size);
+        PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
+        return ResponseEntity.ok(ApiResponse.success(pageResponse));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> listar(
         @RequestParam(required = false) Long categoriaId,
@@ -38,41 +73,12 @@ public class ProductoController {
     
     
     }
+    
+
+    
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductoDTO>> obtener(@PathVariable Long id){
         return productoService.obtenerPorId(id).map(producto -> ResponseEntity.ok(ApiResponse.success(producto))).orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/buscar")
-    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> buscar(
-        @RequestParam String q,
-        @RequestParam (defaultValue = "1") int page,
-        @RequestParam (defaultValue = "12") int size
-    ){
-        Page<ProductoDTO> result = productoService.buscar(q, page, size);
-        PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
-        return ResponseEntity.ok(ApiResponse.success(pageResponse));
-    }
-
-    @GetMapping("/etiqueta/{etiqueta}")
-    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerPorEitqueta(
-        @PathVariable String eitqueta,
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "12") int size
-    ){
-        Page<ProductoDTO> result = productoService.obtenerPorEtiqueta(eitqueta, page, size);
-        PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
-        return ResponseEntity.ok(ApiResponse.success(pageResponse));
-    }
-
-    @GetMapping("/ofertas")
-    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerOfertas(
-        @RequestParam(defaultValue = "1") int page,
-        @RequestParam(defaultValue = "12") int size
-    ){
-        Page<ProductoDTO> result = productoService.obtenerConDescuento(page, size);
-        PageResponse<ProductoDTO> pagerResponse = new PageResponse<>(result);
-        return ResponseEntity.ok(ApiResponse.success(pagerResponse));
     }
 
 
