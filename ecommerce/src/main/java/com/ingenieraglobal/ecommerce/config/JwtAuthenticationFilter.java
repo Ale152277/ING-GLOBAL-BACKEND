@@ -29,18 +29,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+                String authHeader = request.getHeader("Authorization");
+    System.out.println("=== NUEVA PETICIÓN ===");
+    System.out.println("URL: " + request.getRequestURI());
+    System.out.println("Authorization Header: " + (authHeader != null ? authHeader.substring(0, Math.min(50, authHeader.length())) + "..." : "NULL"));
+    System.out.println("=== FIN ===");
+
         try {
             // Extrae el token del header authorization y lo almacena en jwt
             String jwt = getJwtFromRequest(request);
+            System.out.println("🔍 JWT extraído: " + (jwt != null ? "✅ Sí" : "❌ No"));
 
             // si jwt es diferente a null y es valido el token
             if (jwt != null && jwtUtils.validarToken(jwt)) {
+                System.out.println("✅ Token válido");
 
                 // se extrae el email del token
                 String email = jwtUtils.obtenerEmailDelToken(jwt);
+                System.out.println("📧 Email del token: " + email);
 
                 // busca el usuario en la BD mediante el email
                 var usuario = usuarioRepository.findByEmail(email);
+                System.out.println("👤 Usuario encontrado: " + usuario.get().getEmail());
 
                 // si el usuario está presente
                 if (usuario.isPresent()) {
@@ -55,11 +65,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     // Establecer la autenticación en el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    System.out.println("❌ Usuario NO encontrado");
+
                 }
+                System.out.println("❌ Token inválido o no existe");
 
             }
 
         } catch (Exception ex) {
+            System.out.println("❌ Error en filtro: " + ex.getMessage());
+
             logger.error("no se puedo establecer la autenticacion del usuario", ex);
         }
         filterChain.doFilter(request, response);
@@ -70,7 +86,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader("Authorization");
 
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); //remover bearer
+            return bearerToken.substring(7); // remover bearer
         }
         return null;
     }

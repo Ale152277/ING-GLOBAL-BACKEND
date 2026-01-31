@@ -11,17 +11,17 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    @Value("${jwt.secret:tu_clave_secreta_muy_segura_aqui_con_minimo_32_caracteres}")
+    @Value("${jwt.secret:tu_clave_secreta_muy_segura_aqui_con_minimo_32_caracteres_para_jwt}")
     private String jwtSecret;
 
     @Value("${jwt.expiration:86400000}")
     private int jwtExpiration; // en milisegundos(24 horas)
 
-
-    //firma, valida y protege la integridad del token
+    // firma, valida y protege la integridad del token
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
+
     private Claims obtenerClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
@@ -29,6 +29,7 @@ public class JwtUtils {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
     /**
      * Genera un token JWT para un usuario
      * 
@@ -41,10 +42,10 @@ public class JwtUtils {
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
-                .subject(email) //identidad principal
-                .claim("usuarioId", usuarioId) //Claim personalizado
-                .issuedAt(now) //fecha creación
-                .expiration(expiryDate) //fecha expiracion
+                .subject(email) // identidad principal
+                .claim("usuarioId", usuarioId) // Claim personalizado
+                .issuedAt(now) // fecha creación
+                .expiration(expiryDate) // fecha expiracion
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -88,10 +89,10 @@ public class JwtUtils {
      * 
      * @param token Token JWT
      * @return ID del usuario
-        
-      aqui se puede guardar roles, permisos, etc...
-    
-    */
+     * 
+     *         aqui se puede guardar roles, permisos, etc...
+     * 
+     */
     public Long obtenerUsuarioIdDelToken(String token) {
         try {
             return obtenerClaims(token).get("usuarioId", Long.class);
@@ -99,7 +100,7 @@ public class JwtUtils {
             return null;
         }
     }
-    
+
     /**
      * Verifica si un token ha expirado
      * 

@@ -3,6 +3,7 @@ package com.ingenieraglobal.ecommerce.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -44,6 +45,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))//permite que angular pueda llamar a nuestro backend
             .authorizeHttpRequests(auth -> auth //aqui se decide que puede acceder a que ruta
                 // Endpoints públicos
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/productos/**").permitAll()
                 .requestMatchers("/api/v1/categorias/**").permitAll()

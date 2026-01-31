@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/carrito")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CarritoController {
 
     @Autowired
