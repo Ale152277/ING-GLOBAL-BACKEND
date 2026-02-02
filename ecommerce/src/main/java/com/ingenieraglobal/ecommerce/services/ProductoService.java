@@ -9,11 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ingenieraglobal.ecommerce.dtos.ProductoDTO;
+import com.ingenieraglobal.ecommerce.dtos.request.CrearProductoRequest;
+import com.ingenieraglobal.ecommerce.dtos.request.EditarProductoRequest;
+import com.ingenieraglobal.ecommerce.models.Categoria;
+import com.ingenieraglobal.ecommerce.models.Marca;
 import com.ingenieraglobal.ecommerce.models.Producto;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
+import com.ingenieraglobal.ecommerce.repositories.CategoriaRepository;
+import com.ingenieraglobal.ecommerce.repositories.MarcaRepository;
 import com.ingenieraglobal.ecommerce.repositories.ProductoRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -23,6 +30,14 @@ public class ProductoService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    @Autowired
+    private MarcaRepository marcaRepository;
+
+    // --------------------MÉTODO LECTURA--------------------
 
     public Optional<ProductoDTO> obtenerPorId(Long id) {
         return productoRepository.findById(id)
@@ -72,6 +87,117 @@ public class ProductoService {
                 .map(ProductoDTO::new);
     }
 
+    // --------------------MÉTODO ADMIN (CRUD)--------------------
+
+    @Transactional
+    public ProductoDTO crearProducto(CrearProductoRequest request) {
+        Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
+
+        if (productoRepository.findBySku(request.getSku()).isPresent()) {
+            throw new RuntimeException("El SKU ya existe: " + request.getSku());
+        }
+
+        Marca marca = null;
+        if (request.getMarcaId() != null) {
+            marca = marcaRepository.findById(request.getMarcaId())
+                    .orElseThrow(() -> new RuntimeException("Marca no encontrada con id: " + request.getMarcaId()));
+        }
+
+        Producto producto = new Producto();
+        producto.setNombre(request.getNombre());
+        producto.setSku(request.getSku());
+        producto.setPrecio(request.getPrecio());
+        producto.setCategoria(categoria);
+        producto.setMarca(marca);
+        producto.setDescripcion(request.getDescripcion());
+        producto.setStock(request.getStock() != null ? request.getStock() : 0);
+        producto.setDescuento(request.getDescuento() != null ? request.getDescuento() : 0);
+        producto.setEtiqueta(request.getEtiqueta());
+        producto.setImagen(request.getImagen());
+        producto.setRating(request.getRating());
+        producto.setEstado(EstadoEnum.ACTIVO);
+        producto.setCreatedAt(LocalDateTime.now());
+        producto.setUpdatedAt(LocalDateTime.now());
+
+        Producto productoGuardado = productoRepository.save(producto);
+        return new ProductoDTO(productoGuardado);
+
+    }
+
+    @Transactional
+    public ProductoDTO editarProducto(EditarProductoRequest request) {
+        Producto producto = productoRepository.findById(request.getId())
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + request.getId()));
+
+        Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
+                .orElseThrow(() -> new RuntimeException("Categoría no encontrada con id: " + request.getCategoriaId()));
+
+        productoRepository.findBySku(request.getSku())
+                .ifPresent(p -> {
+                    if (!p.getId().equals(request.getId()))
+                        throw new RuntimeException("El SKU ya existe: " + request.getSku());
+                });
+
+        Marca marca = null;
+        if (request.getMarcaId() != null) {
+            marca = marcaRepository.findById(request.getMarcaId())
+                    .orElseThrow(() -> new RuntimeException("Marca no encontrada con id: " + request.getMarcaId()));
+        }
+
+        producto.setNombre(request.getNombre());
+        producto.setSku(request.getSku());
+        producto.setPrecio(request.getPrecio());
+        producto.setCategoria(categoria);
+        producto.setMarca(marca);
+        producto.setDescripcion(request.getDescripcion());
+        producto.setStock(request.getStock() != null ? request.getStock() : 0);
+        producto.setDescuento(request.getDescuento() != null ? request.getDescuento() : 0);
+        producto.setEtiqueta(request.getEtiqueta());
+        producto.setImagen(request.getImagen());
+        producto.setRating(request.getRating());
+        producto.setUpdatedAt(LocalDateTime.now());
+
+        Producto productoGuardado = productoRepository.save(producto);
+        return new ProductoDTO(productoGuardado);
+
+    }
+
+    @Transactional
+    public void eliminarProducto(Long id) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+
+        // Borrado lógico: marcar como inactivo
+        producto.setEstado(EstadoEnum.INACTIVO);
+        producto.setUpdatedAt(LocalDateTime.now());
+        productoRepository.save(producto);
+    }
+
+    @Transactional
+    public ProductoDTO cambiarEstado(Long id, String estado){
+        Producto producto = productoRepository.findById((id)).orElseThrow(()-> new RuntimeException("Producto no encontrado"));
+
+        producto.setEstado(EstadoEnum.valueOf(estado));
+        producto.setUpdatedAt(LocalDateTime.now());
+        Producto productoActualizado = productoRepository.save(producto);
+        return new ProductoDTO(productoActualizado);
+    }
+
+    /**
+     * Obtener todos los productos (incluyendo inactivos)
+     * Solo ADMIN puede acceder
+     * Útil para el panel de administración
+     */
+    public Page<ProductoDTO> obtenerTodosParaAdmin(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("updatedAt").descending());
+        return productoRepository.findAll(pageable).map(ProductoDTO::new);
+    }
+
+
+    
+
+    // --------------------MÉTODO PRIVADO--------------------
     private Sort crearOrdenamiento(String ordenar) {
         if (ordenar == null) {
             return Sort.by("nombre").ascending();
@@ -85,4 +211,5 @@ public class ProductoService {
             default -> Sort.by("nombre").ascending();
         };
     }
+
 }

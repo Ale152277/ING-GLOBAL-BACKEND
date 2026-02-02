@@ -37,12 +37,13 @@ public class JwtUtils {
      * @param email     Email del usuario
      * @return Token JWT
      */
-    public String generarToken(Long usuarioId, String email) {
+    public String generarToken(Long usuarioId, String email, String rol) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
                 .subject(email) // identidad principal
+                .claim("rol", rol)
                 .claim("usuarioId", usuarioId) // Claim personalizado
                 .issuedAt(now) // fecha creación
                 .expiration(expiryDate) // fecha expiracion

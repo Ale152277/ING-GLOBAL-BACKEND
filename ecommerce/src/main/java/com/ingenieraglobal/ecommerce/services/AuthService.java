@@ -76,7 +76,7 @@ public class AuthService {
          * subject => email
          * expiration => 24h
          */
-        String token = jwtUtils.generarToken(usuario.getId(), usuario.getEmail());
+        String token = jwtUtils.generarToken(usuario.getId(), usuario.getEmail(), usuario.getRol().name());
 
         // convertir usuario a DTO
         /*

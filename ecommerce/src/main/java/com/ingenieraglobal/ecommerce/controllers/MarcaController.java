@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.ingenieraglobal.ecommerce.dtos.MarcaDTO;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.repositories.MarcaRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -20,15 +22,12 @@ public class MarcaController {
     private MarcaRepository marcaRepository;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<?>>> obtenerTodas(){
-        List<?> marcas = marcaRepository.findByEstado(EstadoEnum.ACTIVO).stream().map(m-> new Object(){
-            public Long id = m.getId();
-            public String nombre = m.getNombre();
-            public String logo = m.getLogo();
-        }).toList();
-
-        return ResponseEntity.ok(ApiResponse.success(marcas));
-
-    }
+public ResponseEntity<ApiResponse<List<MarcaDTO>>> obtenerTodas() {
+    List<MarcaDTO> marcas = marcaRepository.findAll()
+        .stream()
+        .map(MarcaDTO::new)
+        .collect(Collectors.toList());
+    return ResponseEntity.ok(ApiResponse.success(marcas));
+}
     
 }

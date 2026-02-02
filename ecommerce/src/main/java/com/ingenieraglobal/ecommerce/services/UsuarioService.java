@@ -25,16 +25,15 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-    public ApiResponse<String> registrar(RegistroUsuarioRequest request){
-        if(usuarioRepository.existsByEmail(request.getEmail())){
+    public ApiResponse<String> registrar(RegistroUsuarioRequest request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
             return ApiResponse.error("El email ya está registrado");
         }
 
         Usuario usuario = new Usuario(
-            request.getNombreCompleto(),
-            request.getEmail(),
-            passwordEncoder.encode((request.getContraseña()))
+                request.getNombreCompleto(),
+                request.getEmail(),
+                passwordEncoder.encode((request.getContraseña()))
 
         );
 
@@ -48,13 +47,34 @@ public class UsuarioService {
         return ApiResponse.success("Usuario registrado exitosamente");
     }
 
-    public Optional <Usuario> obtenerPorEmail(String email){
+    @Transactional
+    public ApiResponse<String> crearAdmin(RegistroUsuarioRequest request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            return ApiResponse.error("El email ya está registrado");
+        }
+
+        Usuario usuario = new Usuario(
+                request.getNombreCompleto(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getContraseña()));
+
+        usuario.setTelefono(request.getTelefono());
+        usuario.setDireccion(request.getDireccion());
+        usuario.setRol(RolEnum.ADMIN); 
+        usuario.setEstado(EstadoEnum.ACTIVO);
+
+        usuarioRepository.save(usuario);
+
+        return ApiResponse.success("Admin creado exitosamente");
+    }
+
+    public Optional<Usuario> obtenerPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
 
     }
 
-    public Optional <Usuario> obtenerPorId(Long id){
-        return usuarioRepository.findById(id).filter (u-> u.getEstado() == EstadoEnum.ACTIVO);
+    public Optional<Usuario> obtenerPorId(Long id) {
+        return usuarioRepository.findById(id).filter(u -> u.getEstado() == EstadoEnum.ACTIVO);
     }
-    
+
 }

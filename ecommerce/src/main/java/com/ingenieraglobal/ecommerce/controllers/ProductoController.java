@@ -2,13 +2,19 @@ package com.ingenieraglobal.ecommerce.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ingenieraglobal.ecommerce.dtos.ProductoDTO;
+import com.ingenieraglobal.ecommerce.dtos.request.CrearProductoRequest;
+import com.ingenieraglobal.ecommerce.dtos.request.EditarProductoRequest;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.dtos.response.PageResponse;
 import com.ingenieraglobal.ecommerce.services.ProductoService;
+
+import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
 
@@ -45,12 +51,12 @@ public class ProductoController {
 
 
     @GetMapping("/etiqueta/{etiqueta}")
-    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerPorEitqueta(
-        @PathVariable String eitqueta,
+    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> obtenerPorEtiqueta(
+        @PathVariable String etiqueta,
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "12") int size
     ){
-        Page<ProductoDTO> result = productoService.obtenerPorEtiqueta(eitqueta, page, size);
+        Page<ProductoDTO> result = productoService.obtenerPorEtiqueta(etiqueta, page, size);
         PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
         return ResponseEntity.ok(ApiResponse.success(pageResponse));
     }
@@ -64,7 +70,9 @@ public class ProductoController {
         @RequestParam(defaultValue = "false") boolean soloStock,
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "12") int size,
-        @RequestParam(required = false) String ordenar
+        @RequestParam(required = false) String ordenar,
+        @RequestParam(required = false) String estado  // Agregar este parámetro
+
     ){
 
         Page<ProductoDTO> result = productoService.filtrar(categoriaId, marcaId, precioMin, precioMax, soloStock, page, size, ordenar);
@@ -80,6 +88,68 @@ public class ProductoController {
     public ResponseEntity<ApiResponse<ProductoDTO>> obtener(@PathVariable Long id){
         return productoService.obtenerPorId(id).map(producto -> ResponseEntity.ok(ApiResponse.success(producto))).orElse(ResponseEntity.notFound().build());
     }
+
+
+
+    //--------------------END POINTS ADMIN--------------------//
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductoDTO>> crearProducto(
+        @Valid @RequestBody CrearProductoRequest request
+    ){
+        ProductoDTO productoCreado = productoService.crearProducto(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ApiResponse.success(productoCreado, "PRODUCTO CREADO EXITOSAMENTE"));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ProductoDTO>> editarProducto(
+        @PathVariable Long id,
+        @Valid @RequestBody EditarProductoRequest request
+    ){
+        request.setId(id);
+        ProductoDTO productoEditado = productoService.editarProducto(request);
+        return ResponseEntity.ok(ApiResponse.success(productoEditado, "PRODUCTO ACTUALIZADO EXITOSAMENTE"));
+    }
+
+
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> eliminarProducto(
+        @PathVariable Long id
+    ){
+        productoService.eliminarProducto(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "PRODUCTO ELIMINADO EXITOSAMENTE"));
+    }
+
+        @PatchMapping("/{id}/estado")
+        @PreAuthorize("hasRole('ADMIN')")
+        public ResponseEntity<ApiResponse<ProductoDTO>> cambiarEstado(
+            @PathVariable Long id,
+            @RequestParam String estado
+        ){
+              ProductoDTO productoActualizado = productoService.cambiarEstado(id, estado);
+    return ResponseEntity.ok(ApiResponse.success(productoActualizado, "Estado actualizado"));
+
+        }
+
+
+
+    @GetMapping("/admin/todos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PageResponse<ProductoDTO>>> listarTodos(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "12") int size
+    ){
+        Page<ProductoDTO> result = productoService.obtenerTodosParaAdmin(page, size);
+        PageResponse<ProductoDTO> pageResponse = new PageResponse<>(result);
+        return ResponseEntity.ok(ApiResponse.success(pageResponse));
+
+    }
+
 
 
 
