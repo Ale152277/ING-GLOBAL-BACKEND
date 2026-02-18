@@ -10,12 +10,13 @@ import com.ingenieraglobal.ecommerce.dtos.request.RegistroUsuarioRequest;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.dtos.response.TokenResponse;
 import com.ingenieraglobal.ecommerce.services.AuthService;
+import com.ingenieraglobal.ecommerce.services.UsuarioService;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "https://localhost:4200")
+@CrossOrigin(origins = "http://localhost:4200") 
 
 public class AuthController {
     
@@ -41,6 +42,33 @@ public class AuthController {
         }else{
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+    }
+
+
+    // El usuario hace clic en el link del email → Angular llama este endpoint
+    @GetMapping("/verificar")
+    public ResponseEntity <ApiResponse<String>> verificarEmail(@RequestParam String token){
+        ApiResponse<String> response = authService.verificarEmail(token);
+
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+    } 
+
+
+    @PostMapping("/reenviar-verificacion")
+    public ResponseEntity<ApiResponse<String>> reenviarVerificacion (@RequestParam String email){
+        ApiResponse<String> response = authService.reenviarVerificacion(email);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+
     }
 
 

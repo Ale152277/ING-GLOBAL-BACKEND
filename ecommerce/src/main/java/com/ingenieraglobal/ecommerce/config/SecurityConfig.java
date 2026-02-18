@@ -30,11 +30,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(); // Usa bcryps para encriptar
     }
 
-    @Bean // spring lo crea una vez (cada que vez que guarde o cree una contraseña usaré
-          // este encoder)
+    @Bean // spring lo crea una vez (cada que vez que guarde o cree una contraseña usaré este encoder)
 
     // aqui se define que rutas están protegidas o son publicas o cuales requieren
-    // Login
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // deshabilitar crsf
         http
@@ -42,13 +40,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))// permite que angular pueda llamar a
                                                                                   // nuestro backend
                 .authorizeHttpRequests(auth -> auth // aqui se decide que puede acceder a que ruta
-                        // Endpoints públicos
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Endpoints públicos 
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //cors
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()  
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/registro").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          // NUEVO
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/reenviar-verificacion").permitAll() // NUEVO
 
-                        .requestMatchers(HttpMethod.POST, "/api/v1/usuario/registro").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/usuario/registro/admin").permitAll()
+                        
                         .requestMatchers("/api/v1/productos/**").permitAll()
                         .requestMatchers("/api/v1/categorias/**").permitAll()
                         .requestMatchers("/api/v1/marcas/**").permitAll()
@@ -56,6 +56,7 @@ public class SecurityConfig {
                         // Endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
                         .requestMatchers("/api/v1/usuario/**").authenticated()
+                        .requestMatchers("/api/v1/consultas/**").authenticated()
 
                         // Cualquier otra solicitud requiere autenticación
                         .anyRequest().authenticated())

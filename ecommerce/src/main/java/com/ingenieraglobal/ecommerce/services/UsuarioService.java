@@ -12,9 +12,7 @@ import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
 import com.ingenieraglobal.ecommerce.repositories.UsuarioRepository;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -27,30 +25,6 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private Emailservice emailService;
-
-    public ApiResponse<String> registrar(RegistroUsuarioRequest request) {
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            return ApiResponse.error("El email ya está registrado");
-        }
-
-        Usuario usuario = new Usuario(
-                request.getNombreCompleto(),
-                request.getEmail(),
-                passwordEncoder.encode((request.getContraseña()))
-
-        );
-
-        usuario.setTelefono(request.getTelefono());
-        usuario.setDireccion(request.getDireccion());
-        usuario.setRol(RolEnum.USER);
-        usuario.setEstado(EstadoEnum.ACTIVO);
-
-        usuarioRepository.save(usuario);
-
-        return ApiResponse.success("Usuario registrado exitosamente");
-    }
 
     @Transactional
     public ApiResponse<String> crearAdmin(RegistroUsuarioRequest request) {
@@ -67,7 +41,7 @@ public class UsuarioService {
         usuario.setDireccion(request.getDireccion());
         usuario.setRol(RolEnum.ADMIN); 
         usuario.setEstado(EstadoEnum.ACTIVO);
-
+        usuario.setEmailVerificado(true);
         usuarioRepository.save(usuario);
 
         return ApiResponse.success("Admin creado exitosamente");

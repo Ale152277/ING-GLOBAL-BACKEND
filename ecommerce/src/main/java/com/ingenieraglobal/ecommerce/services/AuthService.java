@@ -1,6 +1,10 @@
 package com.ingenieraglobal.ecommerce.services;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ingenieraglobal.ecommerce.dtos.UsuarioDTO;
@@ -13,7 +17,6 @@ import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
 import com.ingenieraglobal.ecommerce.repositories.UsuarioRepository;
 import com.ingenieraglobal.ecommerce.utils.JwtUtils;
-import com.ingenieraglobal.ecommerce.utils.PasswordUtils;
 
 //clase para centralizar la logica de autenticacion y registro
 //quien puede iniciar sesion registrarse
@@ -26,27 +29,48 @@ public class AuthService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private PasswordUtils passwordUtils;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private Emailservice emailservice;
 
     public ApiResponse<String> registrar(RegistroUsuarioRequest request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
             return ApiResponse.error(("el email ya está registrado"));
         }
 
+        String token = UUID.randomUUID().toString();
+
         Usuario usuario = new Usuario();
         usuario.setNombreCompleto(request.getNombreCompleto());
         usuario.setEmail(request.getEmail());
-        usuario.setContraseñaHash(passwordUtils.encriptarContraseña(request.getContraseña()));
+        usuario.setContraseñaHash(passwordEncoder.encode(request.getContraseña()));
         usuario.setTelefono(request.getTelefono());
         usuario.setDireccion(request.getDireccion());
         usuario.setRol(RolEnum.USER);
         usuario.setEstado(EstadoEnum.ACTIVO);
 
+        usuario.setEmailVerificado(false);
+        usuario.setTokenVerificacion(token);
+        usuario.setTokenExpiracion(LocalDateTime.now().plusHours(24));
+
         usuarioRepository.save(usuario);
-        return ApiResponse.success(null, "Usuario registrado exitosamente");
+
+        try {
+            emailservice.enviarEmailVerificacion(
+                    usuario.getEmail(),
+                    usuario.getNombreCompleto(),
+                    token);
+        } catch (Exception e) {
+            return ApiResponse.success(null,
+                    "Cuenta creada, pero no pudimos enviar el email de verificación. " +
+                            "Contacta a soporte si no recibes el correo.");
+        }
+
+        return ApiResponse.success(null, "Usuario registrado exitosamente, verifica tu buzon de correo");
 
     }
 
@@ -60,8 +84,12 @@ public class AuthService {
 
         // validar que la contraseña exista
 
-        if (!passwordUtils.verificarContraseña(request.getContraseña(), usuario.getContraseñaHash())) {
+        if (!passwordEncoder.matches(request.getContraseña(), usuario.getContraseñaHash())) {
             return ApiResponse.error("Email o contraseña incorrectos");
+        }
+
+        if (!usuario.isEmailVerificado()) {
+            return ApiResponse.error("Debes verificar tu correo electronico antes de iniciar sesión");
         }
 
         // validar que la cuenta esté activa
@@ -94,6 +122,58 @@ public class AuthService {
 
         return ApiResponse.success(tokenResponse, "Login exitoso");
 
+    }
+
+    public ApiResponse<String> verificarEmail(String token) {
+        var opt = usuarioRepository.findByTokenVerificacion(token);
+
+        if (opt.isEmpty()) {
+            return ApiResponse.error("El enlace de verificacion no es valido");
+        }
+
+        Usuario usuario = opt.get();
+
+        if (LocalDateTime.now().isAfter(usuario.getTokenExpiracion())) {
+            return ApiResponse.error("El enlace de verificacion expiró, solicita uno nuevo");
+        }
+
+        if (usuario.isEmailVerificado()) {
+            return ApiResponse.success("Tu cuenta ya está actualmente verificada");
+        }
+
+        usuario.setEmailVerificado(true);
+        usuario.setTokenVerificacion(null);
+        usuario.setTokenExpiracion(null);
+
+        usuarioRepository.save(usuario);
+
+        return ApiResponse.success(null, "¡Cuenta verificada! Ya puedes iniciar sesión");
+    }
+
+    public ApiResponse<String> reenviarVerificacion(String email) {
+        var opt = usuarioRepository.findByEmail(email);
+
+        if (opt.isEmpty()) {
+            return ApiResponse.error("No existe una cuenta con ese correo.");
+        }
+
+        Usuario usuario = opt.get();
+
+        if (usuario.isEmailVerificado()) {
+            return ApiResponse.success(null, "Tu cuenta ya está verificada.");
+        }
+
+        String nuevoToken = UUID.randomUUID().toString();
+        usuario.setTokenVerificacion(nuevoToken);
+        usuario.setTokenExpiracion(LocalDateTime.now().plusHours(24));
+        usuarioRepository.save(usuario);
+
+        emailservice.enviarEmailVerificacion(
+                usuario.getEmail(),
+                usuario.getNombreCompleto(),
+                nuevoToken);
+
+        return ApiResponse.success(null, "Se reenviaron las instrucciones a tu correo.");
     }
 
     /*

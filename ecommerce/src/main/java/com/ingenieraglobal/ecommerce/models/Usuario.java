@@ -54,7 +54,7 @@ public class Usuario {
     private boolean emailVerificado = false;
 
     @Column(name = "token_verificacion", length = 255)
-    private String tokenVerificion;
+    private String tokenVerificacion;
 
     @Column(name = "toxen_expiracion")
     private LocalDateTime tokenExpiracion;
@@ -143,6 +143,10 @@ public class Usuario {
         return fechaActualizacion;
     }
 
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion){
+        this.fechaActualizacion = fechaActualizacion;
+    }
+
     public List<Carrito> getCarritos() {
         return carritos;
     }
@@ -156,7 +160,11 @@ public class Usuario {
     }
 
     public String getTokenVerficacion (){
-        return tokenVerificion;
+        return tokenVerificacion;
+    }
+
+    public void setTokenVerificacion (String tokenVerificacion){
+        this.tokenVerificacion = tokenVerificacion;
     }
 
     public LocalDateTime getTokenExpiracion(){

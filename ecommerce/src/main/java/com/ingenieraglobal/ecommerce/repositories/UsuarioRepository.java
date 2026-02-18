@@ -14,6 +14,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>{
     boolean existsByEmail(String email);
     List<Usuario>findByEstado(EstadoEnum estado);
 
-    Optional<Usuario> findByTokenVerficacion(String token);
+    Optional<Usuario> findByTokenVerificacion(String token);
     
 }
