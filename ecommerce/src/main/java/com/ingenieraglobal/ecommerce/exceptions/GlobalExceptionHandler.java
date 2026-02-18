@@ -1,5 +1,4 @@
 package com.ingenieraglobal.ecommerce.exceptions;
-import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError; //representa eeror de campo especifico
@@ -13,7 +12,6 @@ import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.text.html.parser.Entity;
 
 
 

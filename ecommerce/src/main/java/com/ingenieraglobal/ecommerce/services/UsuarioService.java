@@ -12,7 +12,9 @@ import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
 import com.ingenieraglobal.ecommerce.repositories.UsuarioRepository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,6 +26,9 @@ public class UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private Emailservice emailService;
 
     public ApiResponse<String> registrar(RegistroUsuarioRequest request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
@@ -76,5 +81,8 @@ public class UsuarioService {
     public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id).filter(u -> u.getEstado() == EstadoEnum.ACTIVO);
     }
+
+
+    
 
 }

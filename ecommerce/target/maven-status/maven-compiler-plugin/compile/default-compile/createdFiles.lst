@@ -25,7 +25,6 @@ com\ingenieraglobal\ecommerce\models\enums\EstadoCarritoEnum.class
 com\ingenieraglobal\ecommerce\exceptions\GlobalExceptionHandler.class
 com\ingenieraglobal\ecommerce\controllers\UsuarioController.class
 com\ingenieraglobal\ecommerce\repositories\CategoriaRepository.class
-com\ingenieraglobal\ecommerce\controllers\MarcaController$1.class
 com\ingenieraglobal\ecommerce\repositories\DetalleCarritoRepository.class
 com\ingenieraglobal\ecommerce\services\AuthService.class
 com\ingenieraglobal\ecommerce\config\JpaConfig.class

@@ -3,6 +3,7 @@ package com.ingenieraglobal.ecommerce.models;
 import jakarta.persistence.*;
 import java.util.List;
 
+
 import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
 
@@ -49,6 +50,15 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Carrito> carritos;
 
+    @Column(name= "email_verificado", nullable = false)
+    private boolean emailVerificado = false;
+
+    @Column(name = "token_verificacion", length = 255)
+    private String tokenVerificion;
+
+    @Column(name = "toxen_expiracion")
+    private LocalDateTime tokenExpiracion;
+
     public Usuario() {
     }
 
@@ -58,6 +68,7 @@ public class Usuario {
         this.contraseñaHash = contraseñaHash;
         this.rol = RolEnum.USER;
         this.estado = EstadoEnum.ACTIVO;
+        this.emailVerificado = false;
     }
 
     public Long getId() {
@@ -135,5 +146,27 @@ public class Usuario {
     public List<Carrito> getCarritos() {
         return carritos;
     }
+
+    public boolean isEmailVerificado(){
+        return emailVerificado;
+    }
+
+    public void setEmailVerificado (boolean emailVerificado){
+        this.emailVerificado = emailVerificado;
+    }
+
+    public String getTokenVerficacion (){
+        return tokenVerificion;
+    }
+
+    public LocalDateTime getTokenExpiracion(){
+        return tokenExpiracion;
+    }
+
+    public void setTokenExpiracion(LocalDateTime tokenExpiracion){
+        this.tokenExpiracion = tokenExpiracion;
+
+    }
+
 
 }

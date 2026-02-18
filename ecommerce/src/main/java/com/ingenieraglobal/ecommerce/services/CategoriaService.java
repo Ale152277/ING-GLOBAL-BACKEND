@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ingenieraglobal.ecommerce.dtos.CategoriaDTO;
-import com.ingenieraglobal.ecommerce.models.Categoria;
+//import com.ingenieraglobal.ecommerce.models.Categoria;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.repositories.CategoriaRepository;
 
