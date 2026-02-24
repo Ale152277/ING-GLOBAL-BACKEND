@@ -55,7 +55,7 @@ public class SecurityConfig {
 
                         // Endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
-                        .requestMatchers("/api/v1/usuario/**").authenticated()
+                        .requestMatchers("/api/v1/usuario/**").permitAll()
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
                         // Cualquier otra solicitud requiere autenticación

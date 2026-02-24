@@ -10,7 +10,6 @@ import com.ingenieraglobal.ecommerce.dtos.request.RegistroUsuarioRequest;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.dtos.response.TokenResponse;
 import com.ingenieraglobal.ecommerce.services.AuthService;
-import com.ingenieraglobal.ecommerce.services.UsuarioService;
 
 import jakarta.validation.Valid;
 

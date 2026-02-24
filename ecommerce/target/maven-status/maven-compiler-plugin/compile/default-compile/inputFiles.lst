@@ -1,7 +1,5 @@
-D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\JpaConfig.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\JwtAuthenticationFilter.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\SecurityConfig.java
-D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\config\WebConfig.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\controllers\AuthController.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\controllers\CarritoController.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\controllers\CategoriaController.java
@@ -48,4 +46,3 @@ D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\i
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\services\ProductoService.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\services\UsuarioService.java
 D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\utils\JwtUtils.java
-D:\PROGRAMACION\GitHub\Trabajos\ING-GLOBAL-BACKEND\ecommerce\src\main\java\com\ingenieraglobal\ecommerce\utils\PasswordUtils.java

@@ -2,6 +2,7 @@ package com.ingenieraglobal.ecommerce.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,15 @@ public class UsuarioController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>>eliminarUsuario(@PathVariable Long id){
+        ApiResponse<String> response = usuarioService.eliminarUsuario(id);
+        if(response.isSuccess()){
+            return ResponseEntity.ok(response);
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
     
 
 }

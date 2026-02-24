@@ -46,6 +46,17 @@ public class UsuarioService {
 
         return ApiResponse.success("Admin creado exitosamente");
     }
+    @Transactional
+    public ApiResponse<String>eliminarUsuario(Long id){
+        Optional<Usuario>opt = usuarioRepository.findById(id);
+
+        if(opt.isEmpty()){
+            return ApiResponse.error("Usuario no encontrado");
+        }
+        usuarioRepository.deleteById(id);
+        return ApiResponse.success("Usuario eliminado correctamente");
+    }
+
 
     public Optional<Usuario> obtenerPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
@@ -55,6 +66,7 @@ public class UsuarioService {
     public Optional<Usuario> obtenerPorId(Long id) {
         return usuarioRepository.findById(id).filter(u -> u.getEstado() == EstadoEnum.ACTIVO);
     }
+
 
 
     

@@ -18,6 +18,8 @@ import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
 import com.ingenieraglobal.ecommerce.repositories.UsuarioRepository;
 import com.ingenieraglobal.ecommerce.utils.JwtUtils;
 
+import jakarta.transaction.Transactional;
+
 //clase para centralizar la logica de autenticacion y registro
 //quien puede iniciar sesion registrarse
 //a quien se le entrega un token
@@ -37,6 +39,7 @@ public class AuthService {
     @Autowired
     private Emailservice emailservice;
 
+    @Transactional
     public ApiResponse<String> registrar(RegistroUsuarioRequest request) {
         if (usuarioRepository.findByEmail(request.getEmail()).isPresent()) {
             return ApiResponse.error(("el email ya está registrado"));
@@ -59,16 +62,11 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
 
-        try {
             emailservice.enviarEmailVerificacion(
                     usuario.getEmail(),
                     usuario.getNombreCompleto(),
                     token);
-        } catch (Exception e) {
-            return ApiResponse.success(null,
-                    "Cuenta creada, pero no pudimos enviar el email de verificación. " +
-                            "Contacta a soporte si no recibes el correo.");
-        }
+        
 
         return ApiResponse.success(null, "Usuario registrado exitosamente, verifica tu buzon de correo");
 
