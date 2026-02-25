@@ -45,8 +45,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          // NUEVO
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/reenviar-verificacion").permitAll() // NUEVO
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/reenviar-verificacion").permitAll()
 
                         
                         .requestMatchers("/api/v1/productos/**").permitAll()
@@ -55,7 +55,7 @@ public class SecurityConfig {
 
                         // Endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
-                        .requestMatchers("/api/v1/usuario/**").permitAll()
+                        .requestMatchers("/api/v1/usuario/**").authenticated()
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
                         // Cualquier otra solicitud requiere autenticación
