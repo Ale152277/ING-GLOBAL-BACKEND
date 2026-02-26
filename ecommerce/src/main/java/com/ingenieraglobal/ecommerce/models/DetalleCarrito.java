@@ -1,6 +1,8 @@
 package com.ingenieraglobal.ecommerce.models;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -17,7 +19,7 @@ public class DetalleCarrito {
     @JsonIgnore
     private Carrito carrito;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)
     private Producto producto;
 
@@ -48,7 +50,7 @@ public class DetalleCarrito {
     public BigDecimal calcularSubtotal() {
         BigDecimal precioFinal = precioUnitario;
         if (descuentoAplicado > 0) {
-            BigDecimal porcentaje = new BigDecimal(descuentoAplicado).divide(new BigDecimal(100));
+            BigDecimal porcentaje = new BigDecimal(descuentoAplicado).divide(new BigDecimal(100), 4,RoundingMode.HALF_UP);
             precioFinal = precioUnitario.subtract(precioUnitario.multiply(porcentaje));
         }
         return precioFinal.multiply(new BigDecimal(cantidad));

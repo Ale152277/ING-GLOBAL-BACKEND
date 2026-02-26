@@ -28,7 +28,7 @@ public class Marca {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at", nullable = false, updatable = false)
+    @Column(name = "updated_at", nullable = false, updatable = true)
     private LocalDateTime updateAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "marca")
@@ -76,6 +76,14 @@ public class Marca {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt){
+        this.updateAt = updatedAt;
+    }
+
+    public LocalDateTime getUpdatedAt(){
+        return updateAt;
     }
 
     public List<Producto> getProductos() {
