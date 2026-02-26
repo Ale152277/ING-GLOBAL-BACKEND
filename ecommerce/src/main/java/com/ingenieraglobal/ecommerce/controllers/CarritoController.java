@@ -53,7 +53,7 @@ public class CarritoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{carritoId}/vaciar")
+    @DeleteMapping("/{carritoId}/vaciar")
     public ResponseEntity<Void> vaciarCarrito(@PathVariable Long carritoId){
         carritoService.vaciarCarrito(carritoId);
         return ResponseEntity.noContent().build();

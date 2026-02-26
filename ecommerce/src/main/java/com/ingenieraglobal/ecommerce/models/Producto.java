@@ -2,6 +2,7 @@ package com.ingenieraglobal.ecommerce.models;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public class Producto {
         if (descuento == null || descuento == 0) {
             return precio;
         }
-        BigDecimal porcentajeDescuento = new BigDecimal(descuento).divide(new BigDecimal(100));
+        BigDecimal porcentajeDescuento = new BigDecimal(descuento).divide(new BigDecimal(100), 4, RoundingMode.HALF_UP);
         return precio.subtract(precio.multiply(porcentajeDescuento));
     }
 

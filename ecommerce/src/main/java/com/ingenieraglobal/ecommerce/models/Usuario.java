@@ -56,7 +56,7 @@ public class Usuario {
     @Column(name = "token_verificacion", length = 255)
     private String tokenVerificacion;
 
-    @Column(name = "toxen_expiracion")
+    @Column(name = "token_expiracion")
     private LocalDateTime tokenExpiracion;
 
     public Usuario() {
@@ -159,7 +159,7 @@ public class Usuario {
         this.emailVerificado = emailVerificado;
     }
 
-    public String getTokenVerficacion (){
+    public String getTokenVerificacion (){
         return tokenVerificacion;
     }
 

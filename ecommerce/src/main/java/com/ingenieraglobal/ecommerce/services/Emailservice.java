@@ -142,45 +142,33 @@ EmailSender → se refiere al parámetro temporal del constructor
     }
 
     private String buildConsultaHtml(String nombre, String email, String asunto, String mensaje) {
-        return """
-            <!DOCTYPE html>
-            <html lang="es">
-            <head><meta charset="UTF-8"/></head>
-            <body style="font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;">
-              <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                <div style="background:#c0392b;padding:24px 32px;">
-                  <h1 style="color:#fff;margin:0;font-size:20px;">Nueva Consulta — Ingeniería Global</h1>
-                </div>
-                <div style="padding:32px;">
-                  <table style="width:100%;border-collapse:collapse;">
-                    <tr>
-                      <td style="padding:10px 0;color:#666;font-weight:bold;width:130px;">👤 Nombre:</td>
-                      <td style="padding:10px 0;color:#333;">%s</td>
-                    </tr>
-                    <tr style="background:#f9f9f9;">
-                      <td style="padding:10px;color:#666;font-weight:bold;"> Email:</td>
-                      <td style="padding:10px;color:#333;">%s</td>
-                    </tr>
-                    <tr>
-                      <td style="padding:10px 0;color:#666;font-weight:bold;"> Asunto:</td>
-                      <td style="padding:10px 0;color:#333;">%s</td>
-                    </tr>
-                  </table>
-                  <div style="margin-top:24px;">
-                    <p style="color:#666;font-weight:bold;margin-bottom:8px;"> Mensaje:</p>
-                    <div style="background:#f9f9f9;border-left:4px solid #c0392b;padding:16px;border-radius:4px;color:#333;line-height:1.6;">
-                      %s
-                    </div>
-                  </div>
-                </div>
-                <div style="background:#222;padding:16px 32px;text-align:center;">
-                  <p style="color:#aaa;margin:0;font-size:12px;">Enviado desde ingenieriaglobalperu.com</p>
-                </div>
-              </div>
-            </body>
-            </html>
-            """.formatted(nombre, email, asunto, mensaje.replace("\n", "<br/>"));
-    }
+          String mensajeHtml = mensaje.replace("\n", "<br/>");
+  
+      return "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'/></head>"
+        + "<body style='font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;'>"
+        + "<div style='max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);'>"
+        + "<div style='background:#c0392b;padding:24px 32px;'>"
+        + "<h1 style='color:#fff;margin:0;font-size:20px;'>Nueva Consulta - Ingenieria Global</h1>"
+        + "</div>"
+        + "<div style='padding:32px;'>"
+        + "<table style='width:100%;border-collapse:collapse;'>"
+        + "<tr><td style='padding:10px 0;color:#666;font-weight:bold;width:130px;'>Nombre:</td>"
+        + "<td style='padding:10px 0;color:#333;'>" + nombre + "</td></tr>"
+        + "<tr style='background:#f9f9f9;'>"
+        + "<td style='padding:10px;color:#666;font-weight:bold;'>Email:</td>"
+        + "<td style='padding:10px;color:#333;'>" + email + "</td></tr>"
+        + "<tr><td style='padding:10px 0;color:#666;font-weight:bold;'>Asunto:</td>"
+        + "<td style='padding:10px 0;color:#333;'>" + asunto + "</td></tr>"
+        + "</table>"
+        + "<div style='margin-top:24px;'>"
+        + "<p style='color:#666;font-weight:bold;margin-bottom:8px;'>Mensaje:</p>"
+        + "<div style='background:#f9f9f9;border-left:4px solid #c0392b;padding:16px;border-radius:4px;color:#333;line-height:1.6;'>"
+        + mensajeHtml
+        + "</div></div></div>"
+        + "<div style='background:#222;padding:16px 32px;text-align:center;'>"
+        + "<p style='color:#aaa;margin:0;font-size:12px;'>Enviado desde ingenieriaglobalperu.com</p>"
+        + "</div></div></body></html>";
+}
 
 
     

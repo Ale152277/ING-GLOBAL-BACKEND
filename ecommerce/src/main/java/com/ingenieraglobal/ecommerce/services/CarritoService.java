@@ -84,7 +84,11 @@ public class CarritoService {
     }
     
     public void eliminarProducto(Long carritoId, Long detalleId) {
-        detalleRepository.deleteById(detalleId);
+    DetalleCarrito detalle = detalleRepository
+            .findByIdAndCarritoId(detalleId, carritoId)
+            .orElseThrow(() -> new RuntimeException("Detalle no encontrado en el carrito"));
+
+    detalleRepository.delete(detalle);
     }
     
     public CarritoDTO enviarAWhatsapp(Long carritoId) {
