@@ -41,7 +41,7 @@ public class Usuario {
     @Column(nullable = false)
     private EstadoEnum estado = EstadoEnum.ACTIVO;
 
-    @Column(name = "fecha_registro", nullable = false, updatable = false)
+    @Column(name = "fecha_registro", nullable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @Column(name = "fecha_actualizacion")

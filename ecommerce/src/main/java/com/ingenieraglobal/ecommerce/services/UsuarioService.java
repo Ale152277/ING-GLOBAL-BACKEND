@@ -53,8 +53,11 @@ public class UsuarioService {
         if(opt.isEmpty()){
             return ApiResponse.error("Usuario no encontrado");
         }
-        usuarioRepository.deleteById(id);
+
+        opt.get().setEstado(EstadoEnum.INACTIVO);
+        usuarioRepository.save(opt.get());
         return ApiResponse.success("Usuario eliminado correctamente");
+
     }
 
 
