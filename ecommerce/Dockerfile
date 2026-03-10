@@ -4,9 +4,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN rm -f src/main/resources/application-local.properties && mvn clean package -DskipTests
+RUN rm -f src/main/resources/application-local.properties
 
 RUN mvn clean package -DskipTests
+
+RUN jar tf target/ecommerce-0.0.1-SNAPSHOT.jar | grep application
 
 EXPOSE 8080
 
