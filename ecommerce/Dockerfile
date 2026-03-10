@@ -4,8 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN rm -f src/main/resources/application-local.properties
+
 RUN mvn clean package -DskipTests
 
 EXPOSE 8080
 
-CMD ["java","-jar","target/ecommerce-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "target/ecommerce-0.0.1-SNAPSHOT.jar"]
