@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ingenieraglobal.ecommerce.dtos.CarritoDTO;
 import com.ingenieraglobal.ecommerce.dtos.request.AgregarAlCarritoRequest;
+import com.ingenieraglobal.ecommerce.exceptions.RecursoNoEncontradoException;
 import com.ingenieraglobal.ecommerce.models.Carrito;
 import com.ingenieraglobal.ecommerce.models.DetalleCarrito;
 import com.ingenieraglobal.ecommerce.models.Producto;
@@ -58,12 +59,12 @@ public class CarritoService {
             EstadoCarritoEnum.ACTIVO
         ).orElseGet(() -> {
             Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
             return carritoRepository.save(new Carrito(usuario));
         });
         
         Producto producto = productoRepository.findById(request.getProductoId())
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
         
         Optional<DetalleCarrito> detalle = detalleRepository.findByCarritoIdAndProductoId(
             carrito.getId(),
@@ -79,7 +80,7 @@ public class CarritoService {
             detalleRepository.save(nuevoDetalle);
         }
         
-        carrito = carritoRepository.findById(carrito.getId()).get();
+        carrito = carritoRepository.findById(carrito.getId()).orElseThrow(()-> new RuntimeException("Carrito no encontrado"));
         return new CarritoDTO(carrito);
     }
     
