@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN rm -f src/main/resources/application-local.properties
+RUN rm -f src/main/resources/application-local.properties && mvn clean package -DskipTests
 
 RUN mvn clean package -DskipTests
 
