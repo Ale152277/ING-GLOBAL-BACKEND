@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    @Value("${jwt.secret:tu_clave_secreta_muy_segura_aqui_con_minimo_32_caracteres_para_jwt}")
+    @Value("${jwt.secret}")
     private String jwtSecret;
 
     @Value("${jwt.expiration:86400000}")
