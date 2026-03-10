@@ -8,8 +8,6 @@ RUN rm -f src/main/resources/application-local.properties
 
 RUN mvn clean package -DskipTests
 
-RUN jar tf target/ecommerce-0.0.1-SNAPSHOT.jar | grep application
-
 EXPOSE 8080
 
-CMD ["sh", "-c", "echo DB_URL=$DB_URL && java -jar target/ecommerce-0.0.1-SNAPSHOT.jar"]
+CMD ["sh", "-c", "echo DB_URL=$DB_URL && echo spring.datasource.url=$DB_URL > /tmp/test.properties && java -Dspring.datasource.url=$DB_URL -Dspring.datasource.username=$DB_USERNAME -Dspring.datasource.password=$DB_PASSWORD -jar target/ecommerce-0.0.1-SNAPSHOT.jar"]
