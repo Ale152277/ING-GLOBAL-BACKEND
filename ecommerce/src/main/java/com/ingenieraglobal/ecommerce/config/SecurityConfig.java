@@ -43,6 +43,8 @@ public class SecurityConfig {
                         // Endpoints públicos 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //cors
 
+                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll() 
+
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          
