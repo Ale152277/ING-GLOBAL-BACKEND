@@ -107,4 +107,23 @@ public class CarritoService {
         detalleRepository.deleteByCarritoId(carritoId);
     }
 
+    public CarritoDTO actualizarCantidad(Long carritoId, Long detalleId, Integer cantidad){
+        DetalleCarrito detalle = detalleRepository
+        .findByIdAndCarritoId(detalleId, carritoId)
+        .orElseThrow(() -> new RecursoNoEncontradoException("Detalle no encontrado en el carrito"));
+
+        if(cantidad <= 0){
+            detalleRepository.delete(detalle);
+        }else{
+            detalle.setCantidad(cantidad);
+            detalleRepository.save(detalle);
+        }
+
+        Carrito carrito = carritoRepository.findById(carritoId)
+        .orElseThrow(()-> new RuntimeException("Carrito no encontrado"));
+        return new CarritoDTO(carrito);
+
+        
+    }
+
 }
