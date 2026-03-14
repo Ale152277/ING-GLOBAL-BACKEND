@@ -186,7 +186,7 @@ public class AuthService {
 
     /*
      * “Tengo un Usuario completo (entidad),
-     * pero SOLO quiero enviar al frontend
+     * pero SOLO quiero enviar al frontendd
      * lo que es seguro y útil.”
      */
     private UsuarioDTO convertirADTO(Usuario usuario) {
