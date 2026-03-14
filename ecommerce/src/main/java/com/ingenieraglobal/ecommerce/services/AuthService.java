@@ -176,11 +176,20 @@ public class AuthService {
         usuario.setTokenExpiracion(LocalDateTime.now().plusHours(24));
         usuarioRepository.save(usuario);
 
-        emailservice.enviarEmailVerificacion(
+        try {
+             emailservice.enviarEmailVerificacion(
                 usuario.getEmail(),
                 usuario.getNombreCompleto(),
                 nuevoToken);
 
+            
+        } catch (Exception e) {
+            System.out.println("ERROR AL ENVIAR EL EMAIL" + e.getMessage());
+            System.out.println("La causa es: " + e.getCause());
+            return ApiResponse.error("Error al enviar el correo: " + e.getMessage());
+        }
+
+       
         return ApiResponse.success(null, "Se reenviaron las instrucciones a tu correo.");
     }
 
