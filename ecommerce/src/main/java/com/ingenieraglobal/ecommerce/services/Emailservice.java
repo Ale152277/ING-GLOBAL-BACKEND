@@ -30,6 +30,7 @@ public class Emailservice {
         CreateEmailOptions params = CreateEmailOptions.builder()
         .from(remitente)
         .to(destinatario)
+        .replyTo("ingenieriaglobalgrupoig@gmail.com")
         .subject("Verifica tu cuenta - D&S Ingenieria Global")
         .html(html)
         .build();
@@ -48,6 +49,7 @@ public class Emailservice {
         CreateEmailOptions params = CreateEmailOptions.builder()
         .from(remitente)
         .to(destinatario)
+        .replyTo("ingenieriaglobalgrupoig@gmail.com")
         .subject("[CONSULTA WEB]" + asunto)
         .html(buildConsultaHtml(nombreUsuario, email, asunto, mensaje))
         .build();
