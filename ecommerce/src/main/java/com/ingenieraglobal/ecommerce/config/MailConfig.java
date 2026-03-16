@@ -18,15 +18,14 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailSender(){
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("mail.ingenieriaglobalperu.com");
+        mailSender.setHost("smtp.resend.com");
         mailSender.setPort(465);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.ssl.enable", "true");
-        props.put("mail.smtp.ssl.trust", "mail.ingenieriaglobalperu.com");
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.ssl.enable", "true");
 
 
         return mailSender;
