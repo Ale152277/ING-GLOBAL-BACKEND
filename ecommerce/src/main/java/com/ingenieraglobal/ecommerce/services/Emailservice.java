@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class Emailservice {
-    @Value("${resend.api.key}")
-    private String resendApiKey;
+
+    private final JavaMailSender mailSender;
 
     @Value("${app.mail.remitente}")
     private String remitente;
@@ -20,22 +20,25 @@ public class Emailservice {
     @Value("${app.frontend.url}")
     private String frontendUrl;
 
+    private Emailservice(JavaMailSender mailSender){
+      this.mailSender = mailSender;
+    }
+
 
     public void enviarEmailVerificacion(String destinatario, String nombreCompleto, String token){
       try {
-        Resend resend = new Resend(resendApiKey);
-        String linkVerificacion = frontendUrl + "/verificar-email?token=" + token;
-        String html = buildVerificacionHtml(nombreCompleto, linkVerificacion);
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        CreateEmailOptions params = CreateEmailOptions.builder()
-        .from(remitente)
-        .to(destinatario)
-        .replyTo("ingenieriaglobalgrupoig@gmail.com")
-        .subject("Verifica tu cuenta - D&S Ingenieria Global")
-        .html(html)
-        .build();
+        helper.setFrom(remitente);
+        helper.setTo(destinatario);
+        helper.setSubject("Verifica tu cuenta - D&S Ingenieria Global");
 
-        resend.emails().send(params);
+        String linkVerification = frontendUrl + "/verificar-email?token=" + token;
+        String html = buildVerificacionHtml(nombreCompleto, linkVerification);
+        helper.setText(html, true);
+
+        mailSender.send(message);
         
       } catch (Exception e) {
          throw new RuntimeException("Error al enviar email de verificación: " + e.getMessage(), e);
@@ -44,17 +47,16 @@ public class Emailservice {
 
     public void enviarConsulta(String destinatario, String nombreUsuario, String email, String asunto, String mensaje){
       try {
-        Resend resend = new Resend(resendApiKey);
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        CreateEmailOptions params = CreateEmailOptions.builder()
-        .from(remitente)
-        .to(destinatario)
-        .replyTo("ingenieriaglobalgrupoig@gmail.com")
-        .subject("[CONSULTA WEB]" + asunto)
-        .html(buildConsultaHtml(nombreUsuario, email, asunto, mensaje))
-        .build();
+        helper.setFrom(remitente);
+        helper.setTo(destinatario);
+        helper.setSubject("[CONSULTA WEB]" + asunto);
+        helper.setText(buildConsultaHtml(nombreUsuario, email, asunto, mensaje), true);
 
-        resend.emails().send(params);
+        mailSender.send(message);
+       
         
       } catch (Exception e) {
         throw new RuntimeException("Error al enviar consulta: " + e.getMessage(), e);
