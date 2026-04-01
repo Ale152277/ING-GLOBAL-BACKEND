@@ -11,6 +11,10 @@ import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.services.CarritoService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 @RestController
@@ -64,6 +68,16 @@ public class CarritoController {
     public ResponseEntity<ApiResponse<CarritoDTO>> enviarWhatsapp(@PathVariable Long carritoId){
         CarritoDTO carrito = carritoService.enviarAWhatsapp(carritoId);
         return ResponseEntity.ok(ApiResponse.success(carrito, "Carrito enviado correctamente"));
+    }
+
+    @PutMapping("detalle/{detalleId}")
+    public ResponseEntity<ApiResponse<CarritoDTO>> actualizarCantidad(
+        @PathVariable Long detalleId,
+        @RequestParam Integer cantidad,
+        @RequestParam Long carritoId
+    ){
+        CarritoDTO carrito = carritoService.actualizarCantidad(carritoId, detalleId, cantidad);
+        return ResponseEntity.ok(ApiResponse.success(carrito));
     }
 
 

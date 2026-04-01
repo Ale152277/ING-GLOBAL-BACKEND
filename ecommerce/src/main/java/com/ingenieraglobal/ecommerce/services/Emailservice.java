@@ -4,6 +4,9 @@ import jakarta.mail.internet.MimeMessage; //API que sirve para crear, estructura
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender; //Define metodos (send(mimemessage message)) funciona como un contrato, cualquiera que lo implementa tiene la misma forma de enviar correos
 import org.springframework.mail.javamail.MimeMessageHelper;
+
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,77 +16,56 @@ public class Emailservice {
 
     @Value("${app.mail.remitente}")
     private String remitente;
-    
 
     @Value("${app.frontend.url}")
-    private String forntendUrl;
+    private String frontendUrl;
 
-    //constructor 
-    public Emailservice(JavaMailSender mailSender){
-        this.mailSender = mailSender;
+    private Emailservice(JavaMailSender mailSender){
+      this.mailSender = mailSender;
     }
-/*
-this.mailSender → se refiere a la propiedad de la clase
-EmailSender → se refiere al parámetro temporal del constructor
-*/
 
 
     public void enviarEmailVerificacion(String destinatario, String nombreCompleto, String token){
-        try{
-            MimeMessage message = mailSender.createMimeMessage(); //Permite crear correos con html, adjuntos, etc..
-            
-            //Clase que facilita la creacion de correos complejos
-            //message ==> Es el message que acabamos de crear
-            //true ==> indica que el mensaje puede tener contenido HTML y adjuntos 
-            //UTF 8 ==> Usa codificacion de caracteres para soportar acentos, ñ, emojis, etc..
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8"); 
-            
-            helper.setFrom(remitente);//configura el remitente del correo
-            helper.setTo(destinatario); //configura el destinatario del correo
-            helper.setSubject("Verifica tu cuenta - Ingeniera Global"); //configura el asunto del correo
+      try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            
-            //crea un link de verificacion completo
-            //concatena el endpoint con el token unico (" https://miweb.com/verificar-email?token=abc123")
-            String linkVerificacion = forntendUrl + "/verificar-email?token="+ token;
-            
+        helper.setFrom(remitente);
+        helper.setTo(destinatario);
+        helper.setSubject("Verifica tu cuenta - D&S Ingenieria Global");
 
-            //se llama al metodo buildVerificacion para generar el contenido HTML del correo
-            //pasa el nombre del usuario y el link de verificacion
-            String html = buildVerificacionHtml(nombreCompleto, linkVerificacion);
-            
+        String linkVerification = frontendUrl + "/verificar-email?token=" + token;
+        String html = buildVerificacionHtml(nombreCompleto, linkVerification);
+        helper.setText(html, true);
 
-            //Configura el cuerpo del correo
-            //html ==> contenido
-            //true ==> indica que es HTML, si fuera false sería texto plano
-            helper.setText(html, true);
-
-            //enviar el correo usando el bean JavaMailSender
-            //Spring se encarga de conectarse al servidor SMTP (GMAIL) y enviar el mensaje
-            mailSender.send(message);
-
-        }catch (MessagingException e) {
-            throw new RuntimeException("Error al enviar email de verificación: " + e.getMessage(), e);
-        }
+        mailSender.send(message);
+        
+      } catch (Exception e) {
+         throw new RuntimeException("Error al enviar email de verificación: " + e.getMessage(), e);
+      }
     }
 
-    public void enviarConsulta(String destinatario, String nombreUsuario, String emailUsuario, String asunto, String mensaje){
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+    public void enviarConsulta(String destinatario, String nombreUsuario, String email, String asunto, String mensaje){
+      try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(remitente);
-            helper.setTo(destinatario);
-            helper.setSubject("[CONSULTA WEB]" + asunto);
-            helper.setText(buildConsultaHtml(nombreUsuario, emailUsuario, asunto, mensaje), true);
+        helper.setFrom(remitente);
+        helper.setTo(destinatario);
+        helper.setSubject("[CONSULTA WEB]" + asunto);
+        helper.setText(buildConsultaHtml(nombreUsuario, email, asunto, mensaje), true);
 
-            mailSender.send(message);
-            
-        } catch (MessagingException e) {
-
-            throw new RuntimeException("Error al enviar consulta"+ e.getMessage(), e);
-        }
+        mailSender.send(message);
+       
+        
+      } catch (Exception e) {
+        throw new RuntimeException("Error al enviar consulta: " + e.getMessage(), e);
+      }
     }
+
+
+
+
 
     private String buildVerificacionHtml(String nombre, String link) {
         return """

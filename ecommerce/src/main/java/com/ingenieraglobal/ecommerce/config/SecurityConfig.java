@@ -43,6 +43,8 @@ public class SecurityConfig {
                         // Endpoints públicos 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //cors
 
+                        .requestMatchers("/api/health").permitAll() 
+
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          
@@ -55,6 +57,7 @@ public class SecurityConfig {
 
                         // Endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
+                        .requestMatchers("/api/v1/carrito/detalle/**").authenticated()
                         .requestMatchers("/api/v1/usuario/**").authenticated()
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
@@ -73,7 +76,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // solo angular puede acceder (4200)
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200",
+        "https://ingenieriaglobalperu.com",
+        "https://www.ingenieriaglobalperu.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
