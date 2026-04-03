@@ -17,6 +17,8 @@ public interface DetalleCarritoRepository extends JpaRepository<DetalleCarrito, 
 
     void deleteByCarritoId(Long carritoId);
 
+    Optional<DetalleCarrito> findByCarritoIdAndPresentacionProductoId(Long carritoId, Long presentacionProductoId);
+
     
     
 }

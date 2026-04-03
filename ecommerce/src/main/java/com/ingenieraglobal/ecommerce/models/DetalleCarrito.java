@@ -20,8 +20,12 @@ public class DetalleCarrito {
     private Carrito carrito;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_producto", nullable = false)
+    @JoinColumn(name = "id_producto", nullable = true)
     private Producto producto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_presentacionProducto", nullable = true)
+    private PresentacionProducto presentacionProducto;
 
     @Column(nullable = false)
     private Integer cantidad;
@@ -44,6 +48,15 @@ public class DetalleCarrito {
         this.cantidad = cantidad;
         this.precioUnitario = producto.getPrecio();
         this.descuentoAplicado = producto.getDescuento() != null ? producto.getDescuento() : 0;
+        this.subtotal = calcularSubtotal();
+    }
+
+    public DetalleCarrito(Carrito carrito, PresentacionProducto presentacion, Integer cantidad){
+        this.carrito = carrito;
+        this.presentacionProducto = presentacion;
+        this.cantidad = cantidad;
+        this.precioUnitario = presentacion.getPrecio();
+        this.descuentoAplicado = 0; // Asumimos que las presentaciones no tienen descuento, pero se puede ajustar según la lógica de negocio
         this.subtotal = calcularSubtotal();
     }
 
@@ -109,6 +122,14 @@ public class DetalleCarrito {
 
     public BigDecimal getSubtotal() {
         return subtotal;
+    }
+
+    public PresentacionProducto getPresentacionProducto(){
+        return presentacionProducto;
+    }
+
+    public void setPresentacionProducto(PresentacionProducto presentacionProducto){
+        this.presentacionProducto = presentacionProducto;
     }
 
 }

@@ -61,7 +61,7 @@ public class Producto {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "producto")
     private List<DetalleCarrito> detallesCarrito;
 
     public Producto() {
