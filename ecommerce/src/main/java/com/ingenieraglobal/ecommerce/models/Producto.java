@@ -42,7 +42,7 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock = 0;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
     @Column(length = 255)
