@@ -13,10 +13,15 @@ import com.ingenieraglobal.ecommerce.dtos.request.EditarProductoRequest;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.dtos.response.PageResponse;
 import com.ingenieraglobal.ecommerce.services.ProductoService;
+import com.ingenieraglobal.ecommerce.services.ImagenService;
 
 import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @RestController
 @RequestMapping("/api/v1/productos")
@@ -25,6 +30,8 @@ import java.math.BigDecimal;
 public class ProductoController {
     @Autowired
     private ProductoService productoService;
+    @Autowired
+    private ImagenService imagenService;
 
     
 
@@ -91,7 +98,6 @@ public class ProductoController {
 
 
 
-    //--------------------END POINTS ADMIN--------------------//
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -149,6 +155,18 @@ public class ProductoController {
         return ResponseEntity.ok(ApiResponse.success(pageResponse));
 
     }
+
+
+    @PostMapping("/upload-imagen")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> subirImagen(
+        @RequestParam("archivo") MultipartFile archivo
+
+    ){
+        String url = imagenService.subirImagen(archivo);
+        return ResponseEntity.ok(ApiResponse.success(url, "Imagen subida con exito"));
+    }
+    
 
 
 

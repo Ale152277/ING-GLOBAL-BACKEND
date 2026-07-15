@@ -50,14 +50,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/reenviar-verificacion").permitAll()
 
-                        
-                        .requestMatchers("/api/v1/productos/**").permitAll()
-                        .requestMatchers("/api/v1/categorias/**").permitAll()
-                        .requestMatchers("/api/v1/marcas/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/productos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/categorias/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/categorias/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/marcas/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/marcas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/marcas/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/marcas/**").hasRole("ADMIN")
 
                         // Endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
-                        .requestMatchers("/api/v1/carrito/detalle/**").authenticated()
                         .requestMatchers("/api/v1/usuario/**").authenticated()
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
