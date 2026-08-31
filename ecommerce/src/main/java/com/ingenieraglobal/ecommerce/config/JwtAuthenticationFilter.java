@@ -30,23 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            // Extrae el token del header authorization y lo almacena en jwt
             String jwt = getJwtFromRequest(request);
 
-            // si jwt es diferente a null y es valido el token
             if (jwt != null && jwtUtils.validarToken(jwt) && !jwtUtils.tokenExpirado(jwt)) {
 
-                // se extrae el email del token
                 String email = jwtUtils.obtenerEmailDelToken(jwt);
 
-                // busca el usuario en la BD mediante el email
                 var usuario = usuarioRepository.findByEmail(email);
 
-                // si el usuario está presente
                 if (usuario.isPresent() && usuario.get().getEstado() == EstadoEnum.ACTIVO) {
-                    // se obtiene al usuario
                     Usuario user = usuario.get();
-                    // se crea la autenticacion con rol
                     List<GrantedAuthority> authorities = List
                             .of(new SimpleGrantedAuthority("ROLE_" + user.getRol().name()));
 
@@ -57,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    // Establecer la autenticación en el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
@@ -66,11 +58,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-    // * Extrae el token JWT del header Authorization
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); // remover bearer
+            return bearerToken.substring(7); 
         }
         return null;
     }

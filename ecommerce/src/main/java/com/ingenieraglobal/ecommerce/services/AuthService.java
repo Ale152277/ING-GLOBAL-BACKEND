@@ -20,10 +20,7 @@ import com.ingenieraglobal.ecommerce.utils.JwtUtils;
 
 import jakarta.transaction.Transactional;
 
-//clase para centralizar la logica de autenticacion y registro
-//quien puede iniciar sesion registrarse
-//a quien se le entrega un token
-//a quien se rechaza
+
 
 @Service
 public class AuthService {
@@ -85,12 +82,10 @@ public class AuthService {
     public ApiResponse<TokenResponse> login(LoginRequest request) {
         var usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
 
-        // validar que el email exista
         if (usuario == null) {
             return ApiResponse.error("Email o contraseña incorrectos");
         }
 
-        // validar que la contraseña exista
 
         if (!passwordEncoder.matches(request.getContraseña(), usuario.getContraseñaHash())) {
             return ApiResponse.error("Email o contraseña incorrectos");
@@ -100,27 +95,16 @@ public class AuthService {
             return ApiResponse.error("Debes verificar tu correo electronico antes de iniciar sesión");
         }
 
-        // validar que la cuenta esté activa
         if (usuario.getEstado() != EstadoEnum.ACTIVO) {
             return ApiResponse.error("La cuenta está inactiva");
         }
 
-        // generar token
-        /*
-         * el token contiene
-         * claim => Id
-         * subject => email
-         * expiration => 24h
-         */
+       
         String token = jwtUtils.generarToken(usuario.getId(), usuario.getEmail(), usuario.getRol().name());
 
-        // convertir usuario a DTO
-        /*
-         * nunca devolver entidades, siempre DTOs
-         */
+        
         UsuarioDTO usuarioDTO = convertirADTO(usuario);
 
-        // crear una respuesta con token
         TokenResponse tokenResponse = new TokenResponse(
                 token,
                 86400000L,
@@ -193,11 +177,6 @@ public class AuthService {
         return ApiResponse.success(null, "Se reenviaron las instrucciones a tu correo.");
     }
 
-    /*
-     * “Tengo un Usuario completo (entidad),
-     * pero SOLO quiero enviar al frontend
-     * lo que es seguro y útil.”
-     */
     private UsuarioDTO convertirADTO(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
         dto.setId(usuario.getId());

@@ -37,7 +37,6 @@ public class ProductoService {
     @Autowired
     private MarcaRepository marcaRepository;
 
-    // --------------------MÉTODO LECTURA--------------------
 
     public Optional<ProductoDTO> obtenerPorId(Long id) {
         return productoRepository.findById(id)
@@ -87,7 +86,6 @@ public class ProductoService {
                 .map(ProductoDTO::new);
     }
 
-    // --------------------MÉTODO ADMIN (CRUD)--------------------
 
     @Transactional
     public ProductoDTO crearProducto(CrearProductoRequest request) {
@@ -168,7 +166,6 @@ public class ProductoService {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
 
-        // Borrado lógico: marcar como inactivo
         producto.setEstado(EstadoEnum.INACTIVO);
         producto.setUpdatedAt(LocalDateTime.now());
         productoRepository.save(producto);
@@ -184,11 +181,7 @@ public class ProductoService {
         return new ProductoDTO(productoActualizado);
     }
 
-    /**
-     * Obtener todos los productos (incluyendo inactivos)
-     * Solo ADMIN puede acceder
-     * Útil para el panel de administración
-     */
+    
     public Page<ProductoDTO> obtenerTodosParaAdmin(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("updatedAt").descending());
         return productoRepository.findAll(pageable).map(ProductoDTO::new);

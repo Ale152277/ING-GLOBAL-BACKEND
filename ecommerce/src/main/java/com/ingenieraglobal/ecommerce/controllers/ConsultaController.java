@@ -37,7 +37,6 @@ public class ConsultaController {
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
         .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
-        // intentar obtener el nombre del token si está disponible
 
         
         emailService.enviarConsulta(

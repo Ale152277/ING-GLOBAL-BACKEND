@@ -12,7 +12,6 @@ public class UsuarioDTO {
     private RolEnum rol;
     private EstadoEnum estado;
 
-    // Constructores
     public UsuarioDTO() {
     }
 
@@ -27,7 +26,6 @@ public class UsuarioDTO {
         this.estado = estado;
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }

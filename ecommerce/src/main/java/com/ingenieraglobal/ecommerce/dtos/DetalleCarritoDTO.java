@@ -17,19 +17,16 @@ public class DetalleCarritoDTO {
     public DetalleCarritoDTO(DetalleCarrito dc) {
         this.id = dc.getId();
         this.carritoId = dc.getCarrito().getId();
-        this.producto = new ProductoDTO(dc.getProducto());
         this.cantidad = dc.getCantidad();
         this.precioUnitario = dc.getPrecioUnitario();
         this.descuentoAplicado = dc.getDescuentoAplicado();
         this.subtotal = dc.getSubtotal();
 
-        //si tiene producto directo(flujo viejo)
         if(dc.getProducto() != null){
             this.producto = new ProductoDTO(dc.getProducto());
         }
 
 
-        //Si tiene presentacion (flujo nuevo)
         if(dc.getPresentacionProducto()!= null){
             this.presentacionProducto = new PresentacionProductoDTO(dc.getPresentacionProducto());
         }

@@ -78,7 +78,7 @@ public class ProductoController {
         @RequestParam(defaultValue = "1") int page,
         @RequestParam(defaultValue = "12") int size,
         @RequestParam(required = false) String ordenar,
-        @RequestParam(required = false) String estado  // Agregar este parámetro
+        @RequestParam(required = false) String estado 
 
     ){
 

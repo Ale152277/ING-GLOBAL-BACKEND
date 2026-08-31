@@ -37,10 +37,9 @@ public class SecurityConfig {
         // deshabilitar crsf
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))// permite que angular pueda llamar a
-                                                                                  // nuestro backend
-                .authorizeHttpRequests(auth -> auth // aqui se decide que puede acceder a que ruta
-                        // Endpoints públicos 
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth 
+                        // Endpoints publicos 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //cors
 
                         .requestMatchers("/api/health").permitAll() 
@@ -65,15 +64,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/marcas/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/marcas/**").hasRole("ADMIN")
 
-                        // Endpoints protegidos
+                        // endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
                         .requestMatchers("/api/v1/usuario/**").authenticated()
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
-                        // Cualquier otra solicitud requiere autenticación
                         .anyRequest().authenticated())
-                // usar stateless session (JWT)
-                // no guarda sesiones, cada request debe traer su token JWT
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -84,17 +80,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // solo angular puede acceder (4200)
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200",
         "https://ingenieriaglobalperu.com",
         "https://www.ingenieriaglobalperu.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // Permite enviar tokens, cookies, auth headers
         configuration.setAllowCredentials(true);
 
-        // el navegador cuarda el config por 1 hora
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

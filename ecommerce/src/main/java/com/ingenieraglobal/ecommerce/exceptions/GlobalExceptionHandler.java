@@ -16,11 +16,8 @@ import java.util.Map;
 
 
 @RestControllerAdvice
-//esta clase escucha errores y response en JSON. Aplica todo el backend
 public class GlobalExceptionHandler {
 
-    //maneja excepcion de validacion valid si no cumple (si llegara vacio email por ejemplo)
-    //cuando ocurra una excepción, spring llama automaticamente al metodo
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationException(MethodArgumentNotValidException ex, WebRequest request){
 
@@ -42,14 +39,12 @@ public class GlobalExceptionHandler {
 
     }
 
-    //maneja excepciones de validacion de negocio
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiResponse<String>> handleValidationException(ValidationException ex, WebRequest request){
         ApiResponse<String> response = ApiResponse.error((ex.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    //maneja cualquier otra excepcion no capturada
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGlobalException(Exception ex, WebRequest request){
         ApiResponse<String> response = ApiResponse.error("ERROR INTERNO DEL SERVIDOR");
