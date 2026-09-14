@@ -27,16 +27,12 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 
 public class ProductoService {
-
     @Autowired
     private ProductoRepository productoRepository;
-
     @Autowired
     private CategoriaRepository categoriaRepository;
-
     @Autowired
     private MarcaRepository marcaRepository;
-
 
     public Optional<ProductoDTO> obtenerPorId(Long id) {
         return productoRepository.findById(id)
@@ -86,7 +82,6 @@ public class ProductoService {
                 .map(ProductoDTO::new);
     }
 
-
     @Transactional
     public ProductoDTO crearProducto(CrearProductoRequest request) {
         Categoria categoria = categoriaRepository.findById(request.getCategoriaId())
@@ -120,7 +115,6 @@ public class ProductoService {
 
         Producto productoGuardado = productoRepository.save(producto);
         return new ProductoDTO(productoGuardado);
-
     }
 
     @Transactional
@@ -172,8 +166,9 @@ public class ProductoService {
     }
 
     @Transactional
-    public ProductoDTO cambiarEstado(Long id, String estado){
-        Producto producto = productoRepository.findById((id)).orElseThrow(()-> new RuntimeException("Producto no encontrado"));
+    public ProductoDTO cambiarEstado(Long id, String estado) {
+        Producto producto = productoRepository.findById((id))
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         producto.setEstado(EstadoEnum.valueOf(estado));
         producto.setUpdatedAt(LocalDateTime.now());
@@ -181,16 +176,11 @@ public class ProductoService {
         return new ProductoDTO(productoActualizado);
     }
 
-    
     public Page<ProductoDTO> obtenerTodosParaAdmin(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("updatedAt").descending());
         return productoRepository.findAll(pageable).map(ProductoDTO::new);
     }
 
-
-    
-
-    // --------------------MÉTODO PRIVADO--------------------
     private Sort crearOrdenamiento(String ordenar) {
         if (ordenar == null) {
             return Sort.by("nombre").ascending();
