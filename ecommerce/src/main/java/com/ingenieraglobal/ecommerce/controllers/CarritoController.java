@@ -26,15 +26,7 @@ public class CarritoController {
     private CarritoService carritoService;
 
     @GetMapping("/{usuarioId}")
-    //wrapper de varias capas
-    //ResponseEntity es una case spring que envuelve una respuesta HTTP completa
-    /*
-        El cuerpo de la respuesta (el dato que se quiere devolver, en este caso el carrito de compras).
-
-        El código de estado HTTP (por ejemplo, 200 OK si la operación fue exitosa).
-
-        Los encabezados HTTP (información adicional sobre la respuesta, como tipo de contenido, cookies, etc.).
-    */
+  
     public ResponseEntity<ApiResponse<CarritoDTO>> obtener (@PathVariable Long usuarioId){
         CarritoDTO carrito = carritoService.obtenerCarritoActivo(usuarioId);
         return ResponseEntity.ok(ApiResponse.success(carrito));

@@ -69,4 +69,3 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 }
 
 
-//:"propiedad" es una parametro de consulta o parametro dinammico que se reemplazará con valor real en tiempo de ejecucion

@@ -9,7 +9,14 @@ import java.util.Properties;
 @Configuration 
 public class MailConfig {
 
-   @Value("${spring.mail.username}")
+    @Value("${spring.mail.host}")
+    private String host;
+
+    @Value("${spring.mail.port}")
+    private int port;
+
+
+    @Value("${spring.mail.username}")
     private String username;
 
     @Value("${spring.mail.password}")
@@ -18,14 +25,15 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailSender(){
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.resend.com");
-        mailSender.setPort(465);
+        mailSender.setHost(host);
+        mailSender.setPort(port);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
-        Properties props = mailSender.getJavaMailProperties();
+    Properties props = mailSender.getJavaMailProperties();
     props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.ssl.enable", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.starttls.required", "true");
 
 
         return mailSender;

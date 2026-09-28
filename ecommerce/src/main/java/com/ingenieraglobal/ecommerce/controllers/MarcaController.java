@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ingenieraglobal.ecommerce.dtos.MarcaDTO;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
-//import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.repositories.MarcaRepository;
 
 import java.util.List;

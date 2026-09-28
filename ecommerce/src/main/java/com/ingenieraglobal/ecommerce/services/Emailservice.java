@@ -1,6 +1,5 @@
 package com.ingenieraglobal.ecommerce.services;
-import jakarta.mail.MessagingException;//gestiona fallos como problemas de conextion SMTP, direcciones incorrectas o errores en el formato de mensaje
-import jakarta.mail.internet.MimeMessage; //API que sirve para crear, estructurar y enviar mensajes de corres complejos
+import jakarta.mail.internet.MimeMessage; //API que sirve para crear, estructurar y enviar mensajes de correos complejos
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender; //Define metodos (send(mimemessage message)) funciona como un contrato, cualquiera que lo implementa tiene la misma forma de enviar correos
 import org.springframework.mail.javamail.MimeMessageHelper;
