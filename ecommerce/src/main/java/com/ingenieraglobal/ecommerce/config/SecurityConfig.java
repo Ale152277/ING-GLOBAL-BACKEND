@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,10 +17,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Arrays;
 
 @Configuration // esta clase define configuracion del sistema
 @EnableWebSecurity // activa SpringSecurity, de lo contrario no hay seguridad
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -30,7 +34,8 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(); // Usa bcryps para encriptar
     }
 
-    @Bean // spring lo crea una vez (cada que vez que guarde o cree una contraseña usaré este encoder)
+    @Bean // spring lo crea una vez (cada que vez que guarde o cree una contraseña usaré
+          // este encoder)
 
     // aqui se define que rutas están protegidas o son publicas o cuales requieren
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,20 +43,33 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth 
-                        // Endpoints publicos 
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //cors
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED,
+                                    "No autenticado");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendError(
+                                    HttpServletResponse.SC_FORBIDDEN,
+                                    "Acceso denegado");
+                        }))
+                .authorizeHttpRequests(auth -> auth
+                        // Endpoints publicos
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // cors
 
-                        .requestMatchers("/api/health").permitAll() 
+                        .requestMatchers("/api/health").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/registro").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/v1/auth/verificar").permitAll()          
+                        .requestMatchers(HttpMethod.GET, "/api/v1/auth/verificar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/reenviar-verificacion").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/v1/productos/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/productos/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/productos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/productos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/productos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/productos/**").hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/categorias/**").permitAll()
@@ -66,7 +84,10 @@ public class SecurityConfig {
 
                         // endpoints protegidos
                         .requestMatchers("/api/v1/carrito/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/usuario/registro/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/usuario/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/usuario/**").authenticated()
+
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
                         .anyRequest().authenticated())
@@ -81,8 +102,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200",
-        "https://ingenieriaglobalperu.com",
-        "https://www.ingenieriaglobalperu.com"));
+                "https://ingenieriaglobalperu.com",
+                "https://www.ingenieriaglobalperu.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
