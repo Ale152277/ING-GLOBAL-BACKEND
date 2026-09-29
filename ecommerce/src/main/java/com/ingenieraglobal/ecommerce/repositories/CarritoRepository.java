@@ -16,22 +16,27 @@ import java.util.Optional;
 
 @Repository
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
-    @Query("SELECT c FROM Carrito c WHERE c.usuario.id = :usuarioId AND c.estado = :estado")
-    Optional<Carrito> findCarritoActivoByUsuario(
-            @Param("usuarioId") Long usuarioId,
-            @Param("estado") EstadoCarritoEnum estado);
+        @Query("SELECT c FROM Carrito c WHERE c.usuario.id = :usuarioId AND c.estado = :estado")
+        Optional<Carrito> findCarritoActivoByUsuario(
+                        @Param("usuarioId") Long usuarioId,
+                        @Param("estado") EstadoCarritoEnum estado);
+        
+        Optional<Carrito> findByIdAndUsuarioId(Long id, Long UsuarioId);
+                        
 
-    List<Carrito> findByUsuarioId(Long usuarioId);
+        List<Carrito> findByUsuarioId(Long usuarioId);
 
-    Page<Carrito> findByEstado(EstadoCarritoEnum estado, Pageable pageable);
+        Page<Carrito> findByEstado(EstadoCarritoEnum estado, Pageable pageable);
 
-    @Query("""
-                SELECT c FROM Carrito c
-                WHERE c.estado = :estado
-                AND c.fechaEnvioWhatsapp BETWEEN :fechaInicio AND :fechaFin
-            """)
-    List<Carrito> findCarritosEnviadosPorFecha(
-            @Param("estado") EstadoCarritoEnum estado,
-            @Param("fechaInicio") LocalDateTime fechaInicio,
-            @Param("fechaFin") LocalDateTime fechaFin);
+        @Query("""
+                            SELECT c FROM Carrito c
+                            WHERE c.estado = :estado
+                            AND c.fechaEnvioWhatsapp BETWEEN :fechaInicio AND :fechaFin
+                        """)
+        List<Carrito> findCarritosEnviadosPorFecha(
+                        @Param("estado") EstadoCarritoEnum estado,
+                        @Param("fechaInicio") LocalDateTime fechaInicio,
+                        @Param("fechaFin") LocalDateTime fechaFin);
+
+        
 }

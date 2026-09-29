@@ -60,12 +60,11 @@ public class CarritoService {
 
     public CarritoDTO agregarProducto(Long usuarioId, AgregarAlCarritoRequest request) {
         Carrito carrito = carritoRepository.findCarritoActivoByUsuario(
-                usuarioId, EstadoCarritoEnum.ACTIVO
-        ).orElseGet(() -> {
-            Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
-            return carritoRepository.save(new Carrito(usuario));
-        });
+                usuarioId, EstadoCarritoEnum.ACTIVO).orElseGet(() -> {
+                    Usuario usuario = usuarioRepository.findById(usuarioId)
+                            .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+                    return carritoRepository.save(new Carrito(usuario));
+                });
 
         if (request.getPresentacionId() != null) {
             PresentacionProducto presentacion = presentacionRepository
@@ -109,17 +108,19 @@ public class CarritoService {
         return new CarritoDTO(carrito);
     }
 
-    public void eliminarProducto(Long carritoId, Long detalleId) {
+    public void eliminarProducto(Long usuarioId, Long carritoId, Long detalleId) {
+        obtenerCarritoDelUsuario(carritoId, usuarioId);
+
         DetalleCarrito detalle = detalleRepository
                 .findByIdAndCarritoId(detalleId, carritoId)
-                .orElseThrow(() -> new RuntimeException("Detalle no encontrado en el carrito"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Detalle no enconttrado en el carrito"));
 
         detalleRepository.delete(detalle);
     }
 
-    public CarritoDTO enviarAWhatsapp(Long carritoId) {
-        Carrito carrito = carritoRepository.findById(carritoId)
-                .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
+    public CarritoDTO enviarAWhatsapp(Long usuarioId, Long carritoId) {
+        Carrito carrito = obtenerCarritoDelUsuario(carritoId, usuarioId);
+                
 
         carrito.setEstado(EstadoCarritoEnum.ENVIADO);
         carrito.setFechaEnvioWhatsapp(LocalDateTime.now());
@@ -128,11 +129,15 @@ public class CarritoService {
         return new CarritoDTO(carrito);
     }
 
-    public void vaciarCarrito(Long carritoId) {
+    public void vaciarCarrito(Long usuarioId, Long carritoId) {
+
+        obtenerCarritoDelUsuario(carritoId, usuarioId);
+
         detalleRepository.deleteByCarritoId(carritoId);
     }
 
-    public CarritoDTO actualizarCantidad(Long carritoId, Long detalleId, Integer cantidad) {
+    public CarritoDTO actualizarCantidad(Long UsuarioId, Long carritoId, Long detalleId, Integer cantidad) {
+        obtenerCarritoDelUsuario(carritoId, UsuarioId);
         DetalleCarrito detalle = detalleRepository
                 .findByIdAndCarritoId(detalleId, carritoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Detalle no encontrado en el carrito"));
@@ -148,6 +153,12 @@ public class CarritoService {
                 .orElseThrow(() -> new RuntimeException("Carrito no encontrado"));
         return new CarritoDTO(carrito);
 
+    }
+
+    public Carrito obtenerCarritoDelUsuario(Long carritoId, Long UsuarioId) {
+        return carritoRepository
+                .findByIdAndUsuarioId(carritoId, UsuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Carrito no encontrado"));
     }
 
 }
