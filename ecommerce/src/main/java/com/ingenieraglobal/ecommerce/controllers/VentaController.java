@@ -13,41 +13,67 @@ import com.ingenieraglobal.ecommerce.dtos.VentaDTO;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.services.VentaService;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
+import org.springframework.format.annotation.DateTimeFormat;
 
-@RestController 
-@RequestMapping ("api/v1/ventas")
-@CrossOrigin (origins = "http://localhost:4200")
+import com.ingenieraglobal.ecommerce.dtos.PaginaDTO;
+import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
+
+@RestController
+@RequestMapping("api/v1/ventas")
+@CrossOrigin(origins = "http://localhost:4200")
 public class VentaController {
 
-    @Autowired 
+    @Autowired
     private VentaService ventaService;
 
-    @PostMapping 
+    @PostMapping
     public ResponseEntity<ApiResponse<VentaDTO>> crearVenta(
-        Authentication authentication
-    ){
+            Authentication authentication) {
         Long usuarioId = Long.parseLong(authentication.getName());
 
         VentaDTO venta = ventaService.crearVenta(usuarioId);
 
         return ResponseEntity
-        .status(HttpStatus.CREATED)
-        .body(ApiResponse.success(
-            venta,
-            "Pedido realizado con éxito"
-        ));
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success(
+                        venta,
+                        "Pedido realizado con éxito"));
     }
 
-
     @GetMapping
-    public ResponseEntity<ApiResponse<List<VentaDTO>>> obtenerMisVentas(
-        Authentication authentication){
-            Long usuarioId = Long.parseLong(authentication.getName());
+    public ResponseEntity<ApiResponse<PaginaDTO<VentaDTO>>> obtenerMisVentas(
+            Authentication authentication,
 
-            List<VentaDTO> ventas = ventaService.obtenerVentasDelUsuario(usuarioId);
+            @RequestParam(defaultValue = "0") int page,
 
-            return ResponseEntity.ok(ApiResponse.success(ventas));
+            @RequestParam(defaultValue = "6") int size,
 
-        }    
+            @RequestParam(required = false) EstadoVentaEnum estado,
+
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+
+            @RequestParam(required = false) BigDecimal precioMin,
+
+            @RequestParam(required = false) BigDecimal precioMax) {
+
+        Long usuarioId = Long.parseLong(authentication.getName());
+
+        PaginaDTO<VentaDTO> ventas = ventaService.obtenerVentasDelUsuario(
+                usuarioId,
+                page,
+                size,
+                estado,
+                fechaDesde,
+                fechaHasta,
+                precioMin,
+                precioMax);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(ventas));
+    }
 }

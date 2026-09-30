@@ -19,6 +19,17 @@ import com.ingenieraglobal.ecommerce.repositories.CarritoRepository;
 import com.ingenieraglobal.ecommerce.repositories.ProductoRepository;
 import com.ingenieraglobal.ecommerce.repositories.VentaRepository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import com.ingenieraglobal.ecommerce.dtos.PaginaDTO;
+import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
+
 @Service
 @Transactional
 public class VentaService {
@@ -86,12 +97,47 @@ public class VentaService {
         return new VentaDTO(ventaGuardada);
     }
 
-    @Transactional (readOnly = true)
-    public List<VentaDTO> obtenerVentasDelUsuario(Long usuarioId){
-        return ventaRepository
-        .findByUsuarioIdOrderByFechaVentaDesc(usuarioId)
+    @Transactional(readOnly = true)
+
+    public PaginaDTO<VentaDTO> obtenerVentasDelUsuario(
+            Long usuarioId,
+            int page,
+            int size,
+            EstadoVentaEnum estado,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            BigDecimal precioMin,
+            BigDecimal precioMax) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        LocalDateTime fechaDesdeInicio = fechaDesde != null
+                ? fechaDesde.atStartOfDay()
+                : null;
+
+        Page<Venta> paginaVentas = ventaRepository.buscarVentasDelUsuario(
+            usuarioId, 
+            estado, 
+            fechaDesdeInicio, 
+            fechaDesdeInicio, 
+            precioMin, 
+            precioMax, 
+            pageable
+        );
+
+        List<VentaDTO> ventas = paginaVentas
+        .getContent()
         .stream()
-        .map(VentaDTO::new)
+        .map(VentaDTO::new )
         .toList();
+
+        return new PaginaDTO<>(
+            ventas,
+            paginaVentas.getNumber(),
+            paginaVentas.getSize(),
+            paginaVentas.getTotalElements(),
+            paginaVentas.getTotalPages(),
+            paginaVentas.isFirst(),
+            paginaVentas.isLast()
+    );
     }
 }

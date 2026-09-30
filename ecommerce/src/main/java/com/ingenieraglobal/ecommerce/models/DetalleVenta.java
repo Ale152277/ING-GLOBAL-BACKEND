@@ -36,12 +36,16 @@ public class DetalleVenta {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal subtotal;
 
+    @Column (name = "imagen_producto", length = 500)
+    private String imagenProducto;
+
     public DetalleVenta() {
     }
 
     public DetalleVenta(Venta venta, DetalleCarrito detalleCarrito) {
         this.venta = venta;
         this.producto = detalleCarrito.getProducto();
+        this.imagenProducto = detalleCarrito.getProducto().getImagen();
         this.nombreProducto = detalleCarrito.getProducto().getNombre();
         this.sku = detalleCarrito.getProducto().getSku();
         this.cantidad = detalleCarrito.getCantidad();
@@ -116,5 +120,13 @@ public class DetalleVenta {
 
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
+    }
+
+    public String getImagenProducto(){
+        return imagenProducto;
+    }
+
+    public void setImagenProducto(String imagenProducto){
+        this.imagenProducto = imagenProducto;
     }
 }
