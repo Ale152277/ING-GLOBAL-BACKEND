@@ -27,7 +27,7 @@ public class CarritoController {
     public ResponseEntity<ApiResponse<CarritoDTO>> obtener 
     (Authentication authentication){
         Long usuarioId = Long.parseLong(authentication.getName());
-        CarritoDTO carrito = carritoService.obtenerCarritoActivo(usuarioId);
+        CarritoDTO carrito = carritoService.obtenerCarritoActivo(usuarioId).orElse(null);
         return ResponseEntity.ok(ApiResponse.success(carrito));
     }
 

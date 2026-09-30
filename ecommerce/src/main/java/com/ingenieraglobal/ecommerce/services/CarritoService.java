@@ -43,19 +43,14 @@ public class CarritoService {
     @Autowired
     private PresentacionProductoRepository presentacionRepository;
 
-    public CarritoDTO obtenerCarritoActivo(Long usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    @Transactional (readOnly = true)
+    public Optional <CarritoDTO> obtenerCarritoActivo(Long usuarioId) {
+     
+        return carritoRepository
+        .findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO)
+        .map(CarritoDTO::new );
 
-        Optional<Carrito> carrito = carritoRepository.findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO);
-
-        if (carrito.isEmpty()) {
-            Carrito nuevoCarrito = new Carrito(usuario);
-            nuevoCarrito = carritoRepository.save(nuevoCarrito);
-            return new CarritoDTO(nuevoCarrito);
-        }
-
-        return new CarritoDTO(carrito.get());
+       
     }
 
     public CarritoDTO agregarProducto(Long usuarioId, AgregarAlCarritoRequest request) {

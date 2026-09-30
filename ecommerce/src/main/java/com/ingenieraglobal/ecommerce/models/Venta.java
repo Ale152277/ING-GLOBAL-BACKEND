@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
 
 @Entity
 @Table(name = "ventas")
@@ -12,14 +15,20 @@ import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name= "id_venta")
+    @Column(name = "id_venta")
     private Long id;
 
-    @Column(name = "id_carrito")
-    private Long carritoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_carrito")
+    private Carrito carrito;
 
-    @Column(name = "id_usuario")
-    private Long usuarioId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
+
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    private List<DetalleVenta> detalles = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime fechaVenta = LocalDateTime.now();
@@ -29,28 +38,70 @@ public class Venta {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoEnum estado = EstadoEnum.ACTIVO;
+    private EstadoVentaEnum estado = EstadoVentaEnum.PENDIENTE;
 
-    public Venta() {}
+    public Venta() {
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Long getCarritoId() { return carritoId; }
-    public void setCarritoId(Long carritoId) { this.carritoId = carritoId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Long getUsuarioId() { return usuarioId; }
-    public void setUsuarioId(Long usuarioId) { this.usuarioId = usuarioId; }
+    public Carrito getCarrito() {
+        return carrito;
+    }
 
-    public LocalDateTime getFechaVenta() { return fechaVenta; }
-    public void setFechaVenta(LocalDateTime fechaVenta) { this.fechaVenta = fechaVenta; }
+    public void setCarrito(Carrito carrito) {
+        this.carrito = carrito;
+    }
 
-    public BigDecimal getTotal() { return total; }
-    public void setTotal(BigDecimal total) { this.total = total; }
+    public Usuario getUsuario() {
+        return usuario;
+    }
 
-    public EstadoEnum getEstado() { return estado; }
-    public void setEstado(EstadoEnum estado) { this.estado = estado; }
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 
+    public LocalDateTime getFechaVenta() {
+        return fechaVenta;
+    }
 
-    
+    public void setFechaVenta(LocalDateTime fechaVenta) {
+        this.fechaVenta = fechaVenta;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+
+    public EstadoVentaEnum getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoVentaEnum estado) {
+        this.estado = estado;
+    }
+
+    public List<DetalleVenta> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleVenta> detalles) {
+        this.detalles = detalles;
+    }
+
+    public void agregarDetalle(DetalleVenta detalle) {
+        this.detalles.add(detalle);
+        detalle.setVenta(this);
+    }
+
 }
