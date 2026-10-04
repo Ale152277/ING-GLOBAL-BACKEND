@@ -31,11 +31,10 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() { // define como se encriptan las contraseñas
-        return new BCryptPasswordEncoder(); // Usa bcryps para encriptar
+        return new BCryptPasswordEncoder();
     }
 
-    @Bean // spring lo crea una vez (cada que vez que guarde o cree una contraseña usaré
-          // este encoder)
+    @Bean
 
     // aqui se define que rutas están protegidas o son publicas o cuales requieren
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -55,7 +54,7 @@ public class SecurityConfig {
                                     "Acceso denegado");
                         }))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publicos
+                        // edpoints publicos
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // cors
 
                         .requestMatchers("/api/health").permitAll()
@@ -90,6 +89,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/consultas/**").authenticated()
 
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
