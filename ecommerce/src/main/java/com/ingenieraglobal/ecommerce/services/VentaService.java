@@ -113,12 +113,15 @@ public class VentaService {
         LocalDateTime fechaDesdeInicio = fechaDesde != null
                 ? fechaDesde.atStartOfDay()
                 : null;
+        LocalDateTime fechaHastaExclusiva = fechaHasta != null
+                ? fechaHasta.plusDays(1).atStartOfDay()
+                : null;
 
         Page<Venta> paginaVentas = ventaRepository.buscarVentasDelUsuario(
             usuarioId, 
             estado, 
             fechaDesdeInicio, 
-            fechaDesdeInicio, 
+            fechaHastaExclusiva, 
             precioMin, 
             precioMax, 
             pageable
