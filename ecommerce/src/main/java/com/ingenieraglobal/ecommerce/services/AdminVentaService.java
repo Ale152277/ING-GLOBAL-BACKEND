@@ -20,6 +20,7 @@ import com.ingenieraglobal.ecommerce.exceptions.ValidationException;
 import com.ingenieraglobal.ecommerce.models.DetalleVenta;
 import com.ingenieraglobal.ecommerce.models.Producto;
 import com.ingenieraglobal.ecommerce.repositories.ProductoRepository;
+import com.ingenieraglobal.ecommerce.dtos.AdminVentaDetalleDTO;
 
 @Service
 @Transactional(readOnly = true)
@@ -64,6 +65,13 @@ public class AdminVentaService {
                 paginaVentas.isFirst(),
                 paginaVentas.isLast());
 
+    }
+
+    public AdminVentaDetalleDTO obtenerVentaPorId(Long ventaId){
+        Venta venta = ventaRepository.findById(ventaId).orElseThrow(
+            () -> new RecursoNoEncontradoException("PEDIDO NO ENCONTRADO")
+        );
+        return new AdminVentaDetalleDTO(venta);
     }
 
     @Transactional

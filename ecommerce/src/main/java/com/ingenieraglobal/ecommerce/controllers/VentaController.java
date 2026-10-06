@@ -13,6 +13,8 @@ import com.ingenieraglobal.ecommerce.dtos.VentaDTO;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.services.VentaService;
 
+import jakarta.validation.Valid;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -20,60 +22,61 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.ingenieraglobal.ecommerce.dtos.PaginaDTO;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
-
+import com.ingenieraglobal.ecommerce.dtos.CrearVentaRequestDTO;
 @RestController
 @RequestMapping("api/v1/ventas")
 @CrossOrigin(origins = "http://localhost:4200")
 public class VentaController {
 
-    @Autowired
-    private VentaService ventaService;
+        @Autowired
+        private VentaService ventaService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<VentaDTO>> crearVenta(
-            Authentication authentication) {
-        Long usuarioId = Long.parseLong(authentication.getName());
+        @PostMapping
+        public ResponseEntity<ApiResponse<VentaDTO>> crearVenta(
+                        Authentication authentication,
+                        @Valid @RequestBody CrearVentaRequestDTO request) {
+                Long usuarioId = Long.parseLong(authentication.getName());
 
-        VentaDTO venta = ventaService.crearVenta(usuarioId);
+                VentaDTO venta = ventaService.crearVenta(usuarioId, request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(
-                        venta,
-                        "Pedido realizado con éxito"));
-    }
+                return ResponseEntity
+                                .status(HttpStatus.CREATED)
+                                .body(ApiResponse.success(
+                                                venta,
+                                                "Pedido realizado con éxito"));
+        }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<PaginaDTO<VentaDTO>>> obtenerMisVentas(
-            Authentication authentication,
+        @GetMapping
+        public ResponseEntity<ApiResponse<PaginaDTO<VentaDTO>>> obtenerMisVentas(
+                        Authentication authentication,
 
-            @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "0") int page,
 
-            @RequestParam(defaultValue = "6") int size,
+                        @RequestParam(defaultValue = "6") int size,
 
-            @RequestParam(required = false) EstadoVentaEnum estado,
+                        @RequestParam(required = false) EstadoVentaEnum estado,
 
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
 
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
 
-            @RequestParam(required = false) BigDecimal precioMin,
+                        @RequestParam(required = false) BigDecimal precioMin,
 
-            @RequestParam(required = false) BigDecimal precioMax) {
+                        @RequestParam(required = false) BigDecimal precioMax) {
 
-        Long usuarioId = Long.parseLong(authentication.getName());
+                Long usuarioId = Long.parseLong(authentication.getName());
 
-        PaginaDTO<VentaDTO> ventas = ventaService.obtenerVentasDelUsuario(
-                usuarioId,
-                page,
-                size,
-                estado,
-                fechaDesde,
-                fechaHasta,
-                precioMin,
-                precioMax);
+                PaginaDTO<VentaDTO> ventas = ventaService.obtenerVentasDelUsuario(
+                                usuarioId,
+                                page,
+                                size,
+                                estado,
+                                fechaDesde,
+                                fechaHasta,
+                                precioMin,
+                                precioMax);
 
-        return ResponseEntity.ok(
-                ApiResponse.success(ventas));
-    }
+                return ResponseEntity.ok(
+                                ApiResponse.success(ventas));
+        }
 }

@@ -30,117 +30,130 @@ import org.springframework.data.domain.Pageable;
 import com.ingenieraglobal.ecommerce.dtos.PaginaDTO;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
 
+import com.ingenieraglobal.ecommerce.dtos.CrearVentaRequestDTO;
+import com.ingenieraglobal.ecommerce.models.enums.EstadoPagoEnum;
+
 @Service
 @Transactional
 public class VentaService {
 
-    @Autowired
-    private VentaRepository ventaRepository;
+        @Autowired
+        private VentaRepository ventaRepository;
 
-    @Autowired
-    private CarritoRepository carritoRepository;
+        @Autowired
+        private CarritoRepository carritoRepository;
 
-    @Autowired
-    private ProductoRepository productoRepository;
+        @Autowired
+        private ProductoRepository productoRepository;
 
-    public VentaDTO crearVenta(Long usuarioId) {
+        public VentaDTO crearVenta(Long usuarioId, CrearVentaRequestDTO request) {
 
-        Carrito carrito = carritoRepository
-                .findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No tienes un carrito activo"));
+                Carrito carrito = carritoRepository
+                                .findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO)
+                                .orElseThrow(() -> new RecursoNoEncontradoException("No tienes un carrito activo"));
 
-        if (carrito.getDetalles() == null || carrito.getDetalles().isEmpty()) {
-            throw new ValidationException(
-                    "No puedes confirmar una compra con el carrito vacío");
+                if (carrito.getDetalles() == null || carrito.getDetalles().isEmpty()) {
+                        throw new ValidationException("No puedes confirmar una compra con el carrito vacío");
+                }
+
+                if (ventaRepository.existsByCarritoId(carrito.getId())) {
+                        throw new ValidationException("Este carrito ya fue convertido en una venta");
+                }
+
+                Venta venta = new Venta();
+                venta.setUsuario(carrito.getUsuario());
+                venta.setCarrito(carrito);
+                venta.setTotal(carrito.getTotal());
+
+                venta.setNombreReceptor(request.getNombreReceptor().trim());
+
+                venta.setTelefonoEntrega(request.getTelefonoEntrega().trim());
+
+                venta.setDireccionEntrega(request.getDireccionEntrega().trim());
+
+                if (request.getReferenciaEntrega() != null) {
+                        venta.setReferenciaEntrega(request.getReferenciaEntrega().trim());
+                }
+
+                venta.setMetodoPago(request.getMetodoPago());
+
+                venta.setEstadoPago(EstadoPagoEnum.PENDIENTE);
+
+                for (DetalleCarrito detalleCarrito : carrito.getDetalles()) {
+
+                        Producto producto = detalleCarrito.getProducto();
+
+                        if (producto == null) {
+                                throw new ValidationException(
+                                                "El carrito contiene una presentación no soportada en el checkout actual");
+                        }
+
+                        if (producto.getStock() < detalleCarrito.getCantidad()) {
+                                throw new ValidationException(
+                                                "Stock insuficiente para el producto: "
+                                                                + producto.getNombre());
+                        }
+
+                        DetalleVenta detalleVenta = new DetalleVenta(venta, detalleCarrito);
+
+                        venta.agregarDetalle(detalleVenta);
+
+                        producto.setStock(
+                                        producto.getStock() - detalleCarrito.getCantidad());
+
+                        productoRepository.save(producto);
+                }
+
+                Venta ventaGuardada = ventaRepository.save(venta);
+
+                carrito.setEstado(EstadoCarritoEnum.INACTIVO);
+                carritoRepository.save(carrito);
+
+                return new VentaDTO(ventaGuardada);
         }
 
-        if (ventaRepository.existsByCarritoId(carrito.getId())) {
-            throw new ValidationException(
-                    "Este carrito ya fue convertido en una venta");
+        @Transactional(readOnly = true)
+
+        public PaginaDTO<VentaDTO> obtenerVentasDelUsuario(
+                        Long usuarioId,
+                        int page,
+                        int size,
+                        EstadoVentaEnum estado,
+                        LocalDate fechaDesde,
+                        LocalDate fechaHasta,
+                        BigDecimal precioMin,
+                        BigDecimal precioMax) {
+                Pageable pageable = PageRequest.of(page, size);
+
+                LocalDateTime fechaDesdeInicio = fechaDesde != null
+                                ? fechaDesde.atStartOfDay()
+                                : null;
+                LocalDateTime fechaHastaExclusiva = fechaHasta != null
+                                ? fechaHasta.plusDays(1).atStartOfDay()
+                                : null;
+
+                Page<Venta> paginaVentas = ventaRepository.buscarVentasDelUsuario(
+                                usuarioId,
+                                estado,
+                                fechaDesdeInicio,
+                                fechaHastaExclusiva,
+                                precioMin,
+                                precioMax,
+                                pageable);
+
+                List<VentaDTO> ventas = paginaVentas
+                                .getContent()
+                                .stream()
+                                .map(VentaDTO::new)
+                                .toList();
+
+                return new PaginaDTO<>(
+                                ventas,
+                                paginaVentas.getNumber(),
+                                paginaVentas.getSize(),
+                                paginaVentas.getTotalElements(),
+                                paginaVentas.getTotalPages(),
+                                paginaVentas.isFirst(),
+                                paginaVentas.isLast());
         }
-
-        Venta venta = new Venta();
-        venta.setUsuario(carrito.getUsuario());
-        venta.setCarrito(carrito);
-        venta.setTotal(carrito.getTotal());
-
-        for (DetalleCarrito detalleCarrito : carrito.getDetalles()) {
-
-            Producto producto = detalleCarrito.getProducto();
-
-            if (producto == null) {
-                throw new ValidationException(
-                        "El carrito contiene una presentación no soportada en el checkout actual");
-            }
-
-            if (producto.getStock() < detalleCarrito.getCantidad()) {
-                throw new ValidationException(
-                        "Stock insuficiente para el producto: "
-                                + producto.getNombre());
-            }
-
-            DetalleVenta detalleVenta = new DetalleVenta(venta, detalleCarrito);
-
-            venta.agregarDetalle(detalleVenta);
-
-            producto.setStock(
-                    producto.getStock() - detalleCarrito.getCantidad());
-
-            productoRepository.save(producto);
-        }
-
-        Venta ventaGuardada = ventaRepository.save(venta);
-
-        carrito.setEstado(EstadoCarritoEnum.INACTIVO);
-        carritoRepository.save(carrito);
-
-        return new VentaDTO(ventaGuardada);
-    }
-
-    @Transactional(readOnly = true)
-
-    public PaginaDTO<VentaDTO> obtenerVentasDelUsuario(
-            Long usuarioId,
-            int page,
-            int size,
-            EstadoVentaEnum estado,
-            LocalDate fechaDesde,
-            LocalDate fechaHasta,
-            BigDecimal precioMin,
-            BigDecimal precioMax) {
-        Pageable pageable = PageRequest.of(page, size);
-
-        LocalDateTime fechaDesdeInicio = fechaDesde != null
-                ? fechaDesde.atStartOfDay()
-                : null;
-        LocalDateTime fechaHastaExclusiva = fechaHasta != null
-                ? fechaHasta.plusDays(1).atStartOfDay()
-                : null;
-
-        Page<Venta> paginaVentas = ventaRepository.buscarVentasDelUsuario(
-            usuarioId, 
-            estado, 
-            fechaDesdeInicio, 
-            fechaHastaExclusiva, 
-            precioMin, 
-            precioMax, 
-            pageable
-        );
-
-        List<VentaDTO> ventas = paginaVentas
-        .getContent()
-        .stream()
-        .map(VentaDTO::new )
-        .toList();
-
-        return new PaginaDTO<>(
-            ventas,
-            paginaVentas.getNumber(),
-            paginaVentas.getSize(),
-            paginaVentas.getTotalElements(),
-            paginaVentas.getTotalPages(),
-            paginaVentas.isFirst(),
-            paginaVentas.isLast()
-    );
-    }
 }
