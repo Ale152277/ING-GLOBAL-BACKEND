@@ -17,22 +17,22 @@ import com.ingenieraglobal.ecommerce.repositories.VentaRepository;
 
 import com.ingenieraglobal.ecommerce.exceptions.RecursoNoEncontradoException;
 import com.ingenieraglobal.ecommerce.exceptions.ValidationException;
-import com.ingenieraglobal.ecommerce.models.DetalleVenta;
-import com.ingenieraglobal.ecommerce.models.Producto;
-import com.ingenieraglobal.ecommerce.repositories.ProductoRepository;
+
 import com.ingenieraglobal.ecommerce.dtos.AdminVentaDetalleDTO;
+import com.ingenieraglobal.ecommerce.models.enums.EstadoPagoEnum;
 
 @Service
 @Transactional(readOnly = true)
 public class AdminVentaService {
 
+    private final StockService stockService;
+
     private final VentaRepository ventaRepository;
 
-    private ProductoRepository productoRepository;
-
-    public AdminVentaService(VentaRepository ventaRepository, ProductoRepository productoRepository) {
+    public AdminVentaService(VentaRepository ventaRepository, ProductoRepository productoRepository,
+            StockService stockService) {
         this.ventaRepository = ventaRepository;
-        this.productoRepository = productoRepository;
+        this.stockService = stockService;
     }
 
     public PaginaDTO<AdminVentaResumenDTO> obtenerVentas(
@@ -67,10 +67,9 @@ public class AdminVentaService {
 
     }
 
-    public AdminVentaDetalleDTO obtenerVentaPorId(Long ventaId){
+    public AdminVentaDetalleDTO obtenerVentaPorId(Long ventaId) {
         Venta venta = ventaRepository.findById(ventaId).orElseThrow(
-            () -> new RecursoNoEncontradoException("PEDIDO NO ENCONTRADO")
-        );
+                () -> new RecursoNoEncontradoException("PEDIDO NO ENCONTRADO"));
         return new AdminVentaDetalleDTO(venta);
     }
 
@@ -86,12 +85,12 @@ public class AdminVentaService {
 
         EstadoVentaEnum estadoActual = venta.getEstado();
 
-        validarTransicionEstado(
-                estadoActual,
-                nuevoEstado);
+        validarTransicionEstado(estadoActual, nuevoEstado);
+
+        validarEstadoPagoParaCambio(venta, nuevoEstado);
 
         if (nuevoEstado == EstadoVentaEnum.CANCELADA) {
-            restaurarStock(venta);
+            stockService.restaurarStock(venta);
         }
 
         venta.setEstado(nuevoEstado);
@@ -122,25 +121,19 @@ public class AdminVentaService {
 
         if (!transicionValida) {
             throw new ValidationException(
-                    "No se puede cambiar el pedido de "
-                            + estadoActual
-                            + " a "
-                            + nuevoEstado);
+                    "No se puede cambiar el pedido de " + estadoActual + " a " + nuevoEstado);
         }
 
     }
 
-    private void restaurarStock(Venta venta) {
+    private void validarEstadoPagoParaCambio(Venta venta, EstadoVentaEnum nuevoEstado) {
 
-        for (DetalleVenta detalle : venta.getDetalles()) {
+        if (nuevoEstado == EstadoVentaEnum.CONFIRMADA && venta.getEstadoPago() != EstadoPagoEnum.PAGADO) {
+            throw new ValidationException("No se puede confirmar el pedido porque el pago aún no ha sido confirmado");
+        }
 
-            Producto producto = detalle.getProducto();
-
-            producto.setStock(
-                    producto.getStock()
-                            + detalle.getCantidad());
-
-            productoRepository.save(producto);
+        if (nuevoEstado == EstadoVentaEnum.CANCELADA && venta.getEstadoPago() == EstadoPagoEnum.PAGADO) {
+            throw new ValidationException("No se puede cancelar un pedido pagado sin procesar primero el reembolso");
         }
     }
 

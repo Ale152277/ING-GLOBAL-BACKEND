@@ -2,7 +2,6 @@ package com.ingenieraglobal.ecommerce.services;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,24 +31,52 @@ import com.ingenieraglobal.ecommerce.models.enums.EstadoVentaEnum;
 
 import com.ingenieraglobal.ecommerce.dtos.CrearVentaRequestDTO;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoPagoEnum;
+import com.ingenieraglobal.ecommerce.models.enums.MetodoPagoEnum;
+
 
 @Service
 @Transactional
 public class VentaService {
 
-        @Autowired
-        private VentaRepository ventaRepository;
+        private final VentaRepository ventaRepository;
+        private final CarritoRepository carritoRepository;
+        private final ProductoRepository productoRepository;
+        private final PagoService pagoService;
 
-        @Autowired
-        private CarritoRepository carritoRepository;
+        public VentaService(
+                VentaRepository ventaRepository,
+                CarritoRepository carritoRepository,
+                ProductoRepository productoRepository,
+                PagoService pagoService) {
 
-        @Autowired
-        private ProductoRepository productoRepository;
+                this.ventaRepository = ventaRepository;
+                this.carritoRepository = carritoRepository;
+                this.productoRepository = productoRepository;
+                this.pagoService = pagoService;
+        }
+
+        private LocalDateTime calcularFechaExpiracion(MetodoPagoEnum metodoPago) {
+
+                LocalDateTime ahora = LocalDateTime.now();
+
+                return switch (metodoPago) {
+                        case PLIN, YAPE ->
+                                ahora.plusMinutes(30);
+
+                        case TRANSFERENCIA_DIRECTA ->
+                                ahora.plusHours(24);
+
+                        case TARJETA ->
+                                throw new ValidationException("El pago con tarjeta no está disponible actualmente");
+
+
+                };
+
+        }
 
         public VentaDTO crearVenta(Long usuarioId, CrearVentaRequestDTO request) {
 
-                Carrito carrito = carritoRepository
-                                .findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO)
+                Carrito carrito = carritoRepository.findCarritoActivoByUsuario(usuarioId, EstadoCarritoEnum.ACTIVO)
                                 .orElseThrow(() -> new RecursoNoEncontradoException("No tienes un carrito activo"));
 
                 if (carrito.getDetalles() == null || carrito.getDetalles().isEmpty()) {
@@ -66,9 +93,7 @@ public class VentaService {
                 venta.setTotal(carrito.getTotal());
 
                 venta.setNombreReceptor(request.getNombreReceptor().trim());
-
                 venta.setTelefonoEntrega(request.getTelefonoEntrega().trim());
-
                 venta.setDireccionEntrega(request.getDireccionEntrega().trim());
 
                 if (request.getReferenciaEntrega() != null) {
@@ -76,39 +101,30 @@ public class VentaService {
                 }
 
                 venta.setMetodoPago(request.getMetodoPago());
-
                 venta.setEstadoPago(EstadoPagoEnum.PENDIENTE);
+                venta.setFechaExpiracionPago(calcularFechaExpiracion(request.getMetodoPago()));
 
                 for (DetalleCarrito detalleCarrito : carrito.getDetalles()) {
 
                         Producto producto = detalleCarrito.getProducto();
-
                         if (producto == null) {
-                                throw new ValidationException(
-                                                "El carrito contiene una presentación no soportada en el checkout actual");
+                                throw new ValidationException("El carrito contiene una presentación no soportada en el checkout actual");
                         }
 
                         if (producto.getStock() < detalleCarrito.getCantidad()) {
-                                throw new ValidationException(
-                                                "Stock insuficiente para el producto: "
-                                                                + producto.getNombre());
+                                throw new ValidationException("Stock insuficiente para el producto: " + producto.getNombre());
                         }
 
                         DetalleVenta detalleVenta = new DetalleVenta(venta, detalleCarrito);
-
                         venta.agregarDetalle(detalleVenta);
-
-                        producto.setStock(
-                                        producto.getStock() - detalleCarrito.getCantidad());
-
+                        producto.setStock(producto.getStock() - detalleCarrito.getCantidad());
                         productoRepository.save(producto);
                 }
 
                 Venta ventaGuardada = ventaRepository.save(venta);
-
+                pagoService.crearIntentoPago(ventaGuardada, request.getMetodoPago());
                 carrito.setEstado(EstadoCarritoEnum.INACTIVO);
                 carritoRepository.save(carrito);
-
                 return new VentaDTO(ventaGuardada);
         }
 
