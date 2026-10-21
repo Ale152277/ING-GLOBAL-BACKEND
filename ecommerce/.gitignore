@@ -4,3 +4,4 @@ target/
 .env
 src-backend.zip
 src/main/resources/application-local.properties
+uploads/

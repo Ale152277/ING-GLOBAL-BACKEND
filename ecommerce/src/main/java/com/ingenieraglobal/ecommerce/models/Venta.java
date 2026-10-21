@@ -29,8 +29,10 @@ public class Venta {
     private Usuario usuario;
 
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
-
     private List<DetalleVenta> detalles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "venta")
+    private List<Pago> pagos = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime fechaVenta = LocalDateTime.now();
@@ -42,7 +44,7 @@ public class Venta {
     @Column(nullable = false)
     private EstadoVentaEnum estado = EstadoVentaEnum.PENDIENTE;
 
-    @Column(name = "nombre_receptor",  length = 100)
+    @Column(name = "nombre_receptor", length = 100)
     private String nombreReceptor;
 
     @Column(name = "telefono_entrega", length = 20)
@@ -55,12 +57,15 @@ public class Venta {
     private String referenciaEntrega;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "metodo_pago" )
+    @Column(name = "metodo_pago")
     private MetodoPagoEnum metodoPago;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_pago")
     private EstadoPagoEnum estadoPago = EstadoPagoEnum.PENDIENTE;
+
+    @Column(name = "fecha_expiracion_pago")
+    private LocalDateTime fechaExpiracionPago;
 
     public Venta() {
     }
@@ -126,6 +131,10 @@ public class Venta {
         detalle.setVenta(this);
     }
 
+    public void agregarPago(Pago pago) {
+    this.pagos.add(pago);
+    pago.setVenta(this);
+}
     public String getNombreReceptor() {
         return nombreReceptor;
     }
@@ -174,4 +183,19 @@ public class Venta {
         this.estadoPago = estadoPago;
     }
 
+    public LocalDateTime getFechaExpiracionPago() {
+        return fechaExpiracionPago;
+    }
+
+    public void setFechaExpiracionPago(LocalDateTime fechaExpiracionPago) {
+        this.fechaExpiracionPago = fechaExpiracionPago;
+    }
+
+    public List<Pago> getPagos() {
+        return pagos;
+    }
+
+    public void setPagos(List<Pago> pagos) {
+        this.pagos = pagos;
+    }
 }
