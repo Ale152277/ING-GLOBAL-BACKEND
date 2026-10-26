@@ -53,6 +53,9 @@ public class Pago {
     @Column(name = "motivo_rechazo", length = 500)
     private String motivoRechazo;
 
+    @Column(name = "fecha_revision")
+    private LocalDateTime fechaRevision;
+
     public Pago() {
     }
 
@@ -132,8 +135,8 @@ public class Pago {
         return comprobanteReferencia;
     }
 
-    public void setComprobanteReferencia(String comprobanteUrl) {
-        this.comprobanteReferencia = comprobanteUrl;
+    public void setComprobanteReferencia(String comprobanteReferencia) {
+        this.comprobanteReferencia = comprobanteReferencia;
     }
 
     public LocalDateTime getFechaComprobante() {
@@ -144,4 +147,19 @@ public class Pago {
         this.fechaComprobante = fechaComprobante;
     }
 
+    public String getMotivoRechazo() {
+        return motivoRechazo;
+    }
+
+    public void setMotivoRechazo(String motivoRechazo) {
+        this.motivoRechazo = motivoRechazo;
+    }
+
+    public LocalDateTime getFechaRevision() {
+        return fechaRevision;
+    }
+
+    public void setFechaRevision(LocalDateTime fechaRevision) {
+        this.fechaRevision = fechaRevision;
+    }
 }
