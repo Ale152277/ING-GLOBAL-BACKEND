@@ -2,7 +2,10 @@ package com.ingenieraglobal.ecommerce.controllers;
 
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +37,7 @@ public class PagoController {
 
         Long usuarioId = Long.parseLong(authentication.getName());
         PagoDTO pago = pagoService.obtenerPagoDelUsuario(pagoId, usuarioId);
+
         return ResponseEntity.ok(ApiResponse.success(pago));
     }
 
@@ -43,10 +47,29 @@ public class PagoController {
             @PathVariable Long ventaId) {
 
         Long usuarioId = Long.parseLong(authentication.getName());
-
         List<PagoDTO> pagos = pagoService.obtenerPagosDeVenta(ventaId, usuarioId);
 
         return ResponseEntity.ok(ApiResponse.success(pagos));
+    }
+
+    @GetMapping("/{pagoId}/comprobante")
+    public ResponseEntity<Resource> obtenerComprobante(
+            Authentication authentication,
+            @PathVariable Long pagoId) {
+
+        Long usuarioId = Long.parseLong(authentication.getName());
+        Resource recurso = pagoService.obtenerComprobanteDelUsuario(pagoId, usuarioId);
+
+        MediaType tipoContenido = MediaTypeFactory
+                .getMediaType(recurso)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        return ResponseEntity.ok()
+                .contentType(tipoContenido)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename="" + recurso.getFilename() + """)
+                .body(recurso);
     }
 
     @PostMapping(value = "/{pagoId}/comprobante", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -62,6 +85,7 @@ public class PagoController {
                 usuarioId,
                 archivo);
 
-        return ResponseEntity.ok(ApiResponse.success(pago, "Comprobante registrado correctamente"));
+        return ResponseEntity.ok(
+                ApiResponse.success(pago, "Comprobante registrado correctamente"));
     }
 }
