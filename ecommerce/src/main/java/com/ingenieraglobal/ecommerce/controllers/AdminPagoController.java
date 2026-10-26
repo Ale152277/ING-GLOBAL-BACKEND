@@ -78,7 +78,7 @@ public class AdminPagoController {
 
         return ResponseEntity.ok()
                 .contentType(tipoContenido)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename="" + recurso.getFilename() + """)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + recurso.getFilename() + "\"")
                 .body(recurso);
     }
 }
