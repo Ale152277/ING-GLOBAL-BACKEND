@@ -68,7 +68,7 @@ public class PagoController {
                 .contentType(tipoContenido)
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename="" + recurso.getFilename() + """)
+                        "inline; filename=\"" + recurso.getFilename() + "\"")
                 .body(recurso);
     }
 
