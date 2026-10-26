@@ -19,4 +19,6 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
     List<Pago> findByVenta_IdAndVenta_Usuario_IdOrderByFechaCreacionDesc(Long ventaId, Long usuarioId);
 
     List<Pago> findByEstadoPagoOrderByFechaComprobanteAsc(EstadoPagoEnum estadoPago);
+
+    List<Pago> findAllByOrderByFechaCreacionDesc();
 }
