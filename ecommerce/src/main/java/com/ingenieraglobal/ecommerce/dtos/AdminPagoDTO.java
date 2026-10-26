@@ -26,8 +26,10 @@ public class AdminPagoDTO {
     private LocalDateTime fechaComprobante;
     private LocalDateTime fechaPago;
     private LocalDateTime fechaExpiracionPago;
+    private LocalDateTime fechaRevision;
 
     private boolean comprobanteDisponible;
+    private String motivoRechazo;
 
     public AdminPagoDTO(Pago pago) {
         this.id = pago.getId();
@@ -42,8 +44,9 @@ public class AdminPagoDTO {
         this.fechaComprobante = pago.getFechaComprobante();
         this.fechaPago = pago.getFechaPago();
         this.fechaExpiracionPago = pago.getVenta().getFechaExpiracionPago();
+        this.fechaRevision = pago.getFechaRevision();
         this.comprobanteDisponible = pago.getComprobanteReferencia() != null;
-
+        this.motivoRechazo = pago.getMotivoRechazo();
     }
 
     public Long getId() {
@@ -94,7 +97,15 @@ public class AdminPagoDTO {
         return fechaExpiracionPago;
     }
 
+    public LocalDateTime getFechaRevision() {
+        return fechaRevision;
+    }
+
     public boolean isComprobanteDisponible() {
         return comprobanteDisponible;
+    }
+
+    public String getMotivoRechazo() {
+        return motivoRechazo;
     }
 }
