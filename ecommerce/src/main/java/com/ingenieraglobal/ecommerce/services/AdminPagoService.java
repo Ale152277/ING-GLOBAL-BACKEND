@@ -3,6 +3,7 @@ package com.ingenieraglobal.ecommerce.services;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,6 @@ import com.ingenieraglobal.ecommerce.models.enums.MetodoPagoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.ProveedorPagoEnum;
 import com.ingenieraglobal.ecommerce.repositories.PagoRepository;
 import com.ingenieraglobal.ecommerce.repositories.VentaRepository;
-import org.springframework.core.io.Resource;
 
 @Service
 @Transactional
@@ -26,17 +26,29 @@ public class AdminPagoService {
     private final PagoRepository pagoRepository;
     private final VentaRepository ventaRepository;
     private final ComprobanteStorageService comprobanteStorageService;
+    private final StockService stockService;
 
-    public AdminPagoService(PagoRepository pagoRepository, VentaRepository ventaRepository,
-            ComprobanteStorageService comprobanteStorageService) {
+    public AdminPagoService(
+            PagoRepository pagoRepository,
+            VentaRepository ventaRepository,
+            ComprobanteStorageService comprobanteStorageService,
+            StockService stockService) {
         this.pagoRepository = pagoRepository;
         this.ventaRepository = ventaRepository;
         this.comprobanteStorageService = comprobanteStorageService;
+        this.stockService = stockService;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AdminPagoDTO> obtenerPagos() {
+        return pagoRepository.findAllByOrderByFechaCreacionDesc()
+                .stream()
+                .map(AdminPagoDTO::new)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public List<AdminPagoDTO> obtenerPagosEnRevision() {
-
         return pagoRepository.findByEstadoPagoOrderByFechaComprobanteAsc(EstadoPagoEnum.EN_REVISION)
                 .stream()
                 .map(AdminPagoDTO::new)
@@ -49,8 +61,12 @@ public class AdminPagoService {
 
         validarPagoManualEnRevision(pago);
 
+        LocalDateTime ahora = LocalDateTime.now();
+
         pago.setEstadoPago(EstadoPagoEnum.PAGADO);
-        pago.setFechaPago(LocalDateTime.now());
+        pago.setFechaPago(ahora);
+        pago.setFechaRevision(ahora);
+        pago.setMotivoRechazo(null);
 
         Venta venta = pago.getVenta();
 
@@ -63,17 +79,28 @@ public class AdminPagoService {
         return new AdminPagoDTO(pago);
     }
 
-    public AdminPagoDTO rechazarPagoManual(Long pagoId) {
+    public AdminPagoDTO rechazarPagoManual(Long pagoId, String motivo) {
 
         Pago pago = obtenerPago(pagoId);
 
         validarPagoManualEnRevision(pago);
 
+        String motivoNormalizado = motivo == null ? "" : motivo.trim();
+
+        if (motivoNormalizado.isBlank()) {
+            throw new ValidationException("El motivo de rechazo es obligatorio");
+        }
+
         pago.setEstadoPago(EstadoPagoEnum.RECHAZADO);
+        pago.setMotivoRechazo(motivoNormalizado);
+        pago.setFechaRevision(LocalDateTime.now());
 
         Venta venta = pago.getVenta();
 
-        venta.setEstadoPago(EstadoPagoEnum.PENDIENTE);
+        venta.setEstadoPago(EstadoPagoEnum.RECHAZADO);
+        venta.setEstado(EstadoVentaEnum.CANCELADA);
+
+        stockService.restaurarStock(venta);
 
         pagoRepository.save(pago);
         ventaRepository.save(venta);
