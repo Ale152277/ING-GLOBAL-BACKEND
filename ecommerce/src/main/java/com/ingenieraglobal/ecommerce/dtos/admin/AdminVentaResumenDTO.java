@@ -1,4 +1,5 @@
 package com.ingenieraglobal.ecommerce.dtos.admin;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ public class AdminVentaResumenDTO {
     private LocalDateTime fechaVenta;
     private BigDecimal total;
     private String estado;
+    private String estadoPago;
 
     public AdminVentaResumenDTO(Venta venta) {
         this.id = venta.getId();
@@ -21,6 +23,9 @@ public class AdminVentaResumenDTO {
         this.fechaVenta = venta.getFechaVenta();
         this.total = venta.getTotal();
         this.estado = venta.getEstado().name();
+        this.estadoPago = venta.getEstadoPago() != null
+                ? venta.getEstadoPago().name()
+                : null;
     }
 
     public Long getId() {
@@ -49,5 +54,9 @@ public class AdminVentaResumenDTO {
 
     public String getEstado() {
         return estado;
+    }
+
+    public String getEstadoPago() {
+        return estadoPago;
     }
 }
