@@ -50,6 +50,9 @@ public class Pago {
     @Column(name = "fecha_comprobante")
     private LocalDateTime fechaComprobante;
 
+    @Column(name = "motivo_rechazo", length = 500)
+    private String motivoRechazo;
+
     public Pago() {
     }
 

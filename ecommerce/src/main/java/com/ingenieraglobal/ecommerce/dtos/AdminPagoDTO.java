@@ -32,6 +32,7 @@ public class AdminPagoDTO {
     public AdminPagoDTO(Pago pago) {
         this.id = pago.getId();
         this.ventaId = pago.getVenta().getId();
+        this.nombreCliente = pago.getVenta().getUsuario().getNombreCompleto();
         this.usuarioId = pago.getVenta().getUsuario().getId();
         this.metodoPago = pago.getMetodoPago();
         this.proveedorPago = pago.getProveedorPago();
