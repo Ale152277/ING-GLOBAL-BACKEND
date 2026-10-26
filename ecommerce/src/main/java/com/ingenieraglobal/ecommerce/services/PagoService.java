@@ -3,10 +3,13 @@ package com.ingenieraglobal.ecommerce.services;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ingenieraglobal.ecommerce.dtos.PagoDTO;
+import com.ingenieraglobal.ecommerce.exceptions.RecursoNoEncontradoException;
 import com.ingenieraglobal.ecommerce.exceptions.ValidationException;
 import com.ingenieraglobal.ecommerce.models.Pago;
 import com.ingenieraglobal.ecommerce.models.Venta;
@@ -16,8 +19,6 @@ import com.ingenieraglobal.ecommerce.models.enums.MetodoPagoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.ProveedorPagoEnum;
 import com.ingenieraglobal.ecommerce.repositories.PagoRepository;
 import com.ingenieraglobal.ecommerce.repositories.VentaRepository;
-import com.ingenieraglobal.ecommerce.exceptions.RecursoNoEncontradoException;
-import com.ingenieraglobal.ecommerce.dtos.PagoDTO;
 
 @Service
 @Transactional
@@ -27,7 +28,9 @@ public class PagoService {
     private final VentaRepository ventaRepository;
     private final ComprobanteStorageService comprobanteStorageService;
 
-    public PagoService(PagoRepository pagoRepository, VentaRepository ventaRepository,
+    public PagoService(
+            PagoRepository pagoRepository,
+            VentaRepository ventaRepository,
             ComprobanteStorageService comprobanteStorageService) {
         this.pagoRepository = pagoRepository;
         this.ventaRepository = ventaRepository;
@@ -43,32 +46,31 @@ public class PagoService {
             throw new ValidationException(
                     "El pedido no se encuentra disponible para realizar un nuevo intento de pago");
         }
+
         if (pagoRepository.existsByVenta_IdAndEstadoPago(venta.getId(), EstadoPagoEnum.PENDIENTE)) {
             throw new ValidationException("Ya existe un intento de pago pendiente para este pedido");
         }
 
-        if (venta.getFechaExpiracionPago() != null && !venta.getFechaExpiracionPago().isAfter(LocalDateTime.now())) {
+        if (venta.getFechaExpiracionPago() != null
+                && !venta.getFechaExpiracionPago().isAfter(LocalDateTime.now())) {
             throw new ValidationException("El tiempo disponible para realizar el pago ha expirado");
         }
 
         Pago pago = new Pago();
-
         pago.setMetodoPago(metodoPago);
         pago.setMonto(venta.getTotal());
         pago.setEstadoPago(EstadoPagoEnum.PENDIENTE);
         pago.setProveedorPago(determinarProveedorPago(metodoPago));
+
         venta.agregarPago(pago);
+
         return pagoRepository.save(pago);
     }
 
-    private ProveedorPagoEnum determinarProveedorPago(MetodoPagoEnum metodoPago) {
-        return switch (metodoPago) {
-            case YAPE, PLIN, TRANSFERENCIA_DIRECTA -> ProveedorPagoEnum.INTERNO;
-            case TARJETA -> throw new ValidationException("El pago con tarjeta no está disponible actualmente");
-        };
-    }
-
-    public PagoDTO registrarComprobantePagoManual(Long pagoId, Long usuarioId, MultipartFile archivo) {
+    public PagoDTO registrarComprobantePagoManual(
+            Long pagoId,
+            Long usuarioId,
+            MultipartFile archivo) {
 
         Pago pago = obtenerPagoDelUsuarioEntidad(pagoId, usuarioId);
         validarPagoManualPendiente(pago);
@@ -83,9 +85,8 @@ public class PagoService {
             throw new ValidationException("El pedido no se encuentra pendiente de pago");
         }
 
-        if (venta.getFechaExpiracionPago() != null && !venta.getFechaExpiracionPago()
-                .isAfter(LocalDateTime.now())) {
-
+        if (venta.getFechaExpiracionPago() != null
+                && !venta.getFechaExpiracionPago().isAfter(LocalDateTime.now())) {
             throw new ValidationException("El plazo para registrar el comprobante ha expirado");
         }
 
@@ -103,14 +104,48 @@ public class PagoService {
         return new PagoDTO(pago);
     }
 
-    private void validarPagoManualPendiente(Pago pago) {
+    @Transactional(readOnly = true)
+    public PagoDTO obtenerPagoDelUsuario(Long pagoId, Long usuarioId) {
+        return new PagoDTO(obtenerPagoDelUsuarioEntidad(pagoId, usuarioId));
+    }
 
+    @Transactional(readOnly = true)
+    public List<PagoDTO> obtenerPagosDeVenta(Long ventaId, Long usuarioId) {
+        return pagoRepository
+                .findByVenta_IdAndVenta_Usuario_IdOrderByFechaCreacionDesc(ventaId, usuarioId)
+                .stream()
+                .map(PagoDTO::new)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Resource obtenerComprobanteDelUsuario(Long pagoId, Long usuarioId) {
+        Pago pago = obtenerPagoDelUsuarioEntidad(pagoId, usuarioId);
+
+        if (pago.getComprobanteReferencia() == null
+                || pago.getComprobanteReferencia().isBlank()) {
+            throw new RecursoNoEncontradoException("El pago no tiene un comprobante registrado");
+        }
+
+        return comprobanteStorageService.cargar(pago.getComprobanteReferencia());
+    }
+
+    private ProveedorPagoEnum determinarProveedorPago(MetodoPagoEnum metodoPago) {
+        return switch (metodoPago) {
+            case YAPE, PLIN, TRANSFERENCIA_DIRECTA -> ProveedorPagoEnum.INTERNO;
+            case TARJETA -> throw new ValidationException(
+                    "El pago con tarjeta no está disponible actualmente");
+        };
+    }
+
+    private void validarPagoManualPendiente(Pago pago) {
         if (pago.getProveedorPago() != ProveedorPagoEnum.INTERNO) {
             throw new ValidationException("El pago indicado no corresponde a un pago manual");
         }
 
         if (!esMetodoPagoManual(pago.getMetodoPago())) {
-            throw new ValidationException("El método de pago indicado no admite comprobante manual");
+            throw new ValidationException(
+                    "El método de pago indicado no admite comprobante manual");
         }
 
         if (pago.getEstadoPago() != EstadoPagoEnum.PENDIENTE) {
@@ -124,30 +159,9 @@ public class PagoService {
                 || metodoPago == MetodoPagoEnum.TRANSFERENCIA_DIRECTA;
     }
 
-    @Transactional(readOnly = true)
-    public PagoDTO obtenerPagoDelUsuario(Long pagoId, Long usuarioId) {
-        Pago pago = pagoRepository.findByIdAndVenta_Usuario_Id(pagoId, usuarioId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
-
-        return new PagoDTO(pago);
-    }
-
-    @Transactional(readOnly = true)
-    public List<PagoDTO> obtenerPagosDeVenta(Long ventaId, Long usuarioId) {
-
-        return pagoRepository.findByVenta_IdAndVenta_Usuario_IdOrderByFechaCreacionDesc(
-                ventaId, usuarioId
-            )
-                .stream()
-                .map(PagoDTO::new)
-                .toList();
-    }
-
     private Pago obtenerPagoDelUsuarioEntidad(Long pagoId, Long usuarioId) {
-
         return pagoRepository
                 .findByIdAndVenta_Usuario_Id(pagoId, usuarioId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Pago no encontrado"));
     }
-
 }
