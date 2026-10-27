@@ -48,6 +48,30 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
                         Pageable pageable);
 
         @Query("""
+                        SELECT p FROM Producto p
+                        WHERE (
+                            :texto IS NULL
+                            OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
+                            OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :texto, '%'))
+                        )
+                        AND (:precioMin IS NULL OR p.precio >= :precioMin)
+                        AND (:precioMax IS NULL OR p.precio <= :precioMax)
+                        AND (:stockMin IS NULL OR p.stock >= :stockMin)
+                        AND (:stockMax IS NULL OR p.stock <= :stockMax)
+                        AND (:estado IS NULL OR p.estado = :estado)
+                        """)
+
+        Page<Producto> filtrarParaAdmin(
+                @Param("texto") String texto,
+                @Param("precioMin") BigDecimal precioMin,
+                @Param("precioMax") BigDecimal precioMax,
+                @Param("stockMin") Integer stockMin,
+                @Param("stockMax") Integer stockMax,
+                @Param("estado") EstadoEnum estado,
+                Pageable pageable
+        );
+
+        @Query("""
                              SELECT p FROM Producto p
                              WHERE p.estado = :estado
                              AND (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :termino, '%'))
