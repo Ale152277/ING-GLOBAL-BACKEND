@@ -64,8 +64,8 @@ public class AuthService {
                     usuario.getEmail(),
                     usuario.getNombreCompleto(),
                     token);
-        
-            
+
+
         } catch (Exception e) {
            System.out.println("ERROR AL ENVIAR EMAIL" + e.getMessage());
            System.out.println("CAUSA"+ e.getCause());
@@ -73,7 +73,7 @@ public class AuthService {
            return ApiResponse.success(null, "Usuario registrado, hubo un problema al enviar el correo");
         }
 
-            
+
 
         return ApiResponse.success(null, "Usuario registrado exitosamente, verifica tu buzon de correo");
 
@@ -99,10 +99,15 @@ public class AuthService {
             return ApiResponse.error("La cuenta está inactiva");
         }
 
-       
-        String token = jwtUtils.generarToken(usuario.getId(), usuario.getEmail(), usuario.getRol().name());
 
-        
+        String token = jwtUtils.generarToken(
+            usuario.getId(),
+            usuario.getEmail(),
+            usuario.getRol().name(),
+            usuario.getVersionToken()
+        );
+
+
         UsuarioDTO usuarioDTO = convertirADTO(usuario);
 
         TokenResponse tokenResponse = new TokenResponse(
@@ -166,14 +171,14 @@ public class AuthService {
                 usuario.getNombreCompleto(),
                 nuevoToken);
 
-            
+
         } catch (Exception e) {
             System.out.println("ERROR AL ENVIAR EL EMAIL" + e.getMessage());
             System.out.println("La causa es: " + e.getCause());
             return ApiResponse.error("Error al enviar el correo: " + e.getMessage());
         }
 
-       
+
         return ApiResponse.success(null, "Se reenviaron las instrucciones a tu correo.");
     }
 

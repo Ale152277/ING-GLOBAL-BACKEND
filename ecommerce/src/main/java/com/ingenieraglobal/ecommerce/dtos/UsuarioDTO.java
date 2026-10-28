@@ -2,6 +2,7 @@ package com.ingenieraglobal.ecommerce.dtos;
 
 import com.ingenieraglobal.ecommerce.models.enums.EstadoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.RolEnum;
+import java.time.LocalDateTime;
 
 public class UsuarioDTO {
     private Long id;
@@ -11,6 +12,7 @@ public class UsuarioDTO {
     private String direccion;
     private RolEnum rol;
     private EstadoEnum estado;
+    private LocalDateTime fechaRegistro;
 
     public UsuarioDTO() {
     }
@@ -80,5 +82,13 @@ public class UsuarioDTO {
 
     public void setEstado(EstadoEnum estado) {
         this.estado = estado;
+    }
+
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 }

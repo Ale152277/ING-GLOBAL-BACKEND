@@ -29,22 +29,21 @@ public class JwtUtils {
                 .getPayload();
     }
 
-    /**
-     * Genera un token JWT para un usuario
-     * 
-     * @param usuarioId ID del usuario
-     * @param email     Email del usuario
-     * @return Token JWT
+    /** Genera un token JWT para un usuario
+      @param usuarioId id del usuario
+      @param email     email del usuario
+      @return token JWT
      */
-    public String generarToken(Long usuarioId, String email, String rol) {
+    public String generarToken(Long usuarioId, String email, String rol, int versionToken) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
                 .subject(email) // identidad principal
                 .claim("rol", rol)
-                .claim("usuarioId", usuarioId) // Claim personalizado
-                .issuedAt(now) // fecha creación
+                .claim("usuarioId", usuarioId)
+                .claim("versionToken", versionToken)
+                .issuedAt(now) // fecha creacion
                 .expiration(expiryDate) // fecha expiracion
                 .signWith(getSigningKey())
                 .compact();
@@ -52,7 +51,7 @@ public class JwtUtils {
 
     /**
      * Valida si un token JWT es válido
-     * 
+     *
      * @param token Token a validar
      * @return true si es válido, false si no
      */
@@ -71,7 +70,7 @@ public class JwtUtils {
 
     /**
      * Extrae el email del token JWT
-     * 
+     *
      * @param token Token JWT
      * @return Email del usuario
      */
@@ -86,12 +85,12 @@ public class JwtUtils {
 
     /**
      * Extrae el ID del usuario del token JWT
-     * 
+     *
      * @param token Token JWT
      * @return ID del usuario
-     * 
+     *
      *         aqui se puede guardar roles, permisos, etc...
-     * 
+     *
      */
     public Long obtenerUsuarioIdDelToken(String token) {
         try {
@@ -103,7 +102,7 @@ public class JwtUtils {
 
     /**
      * Verifica si un token ha expirado
-     * 
+     *
      * @param token Token JWT
      * @return true si ha expirado, false si aún es válido
      */
@@ -114,5 +113,11 @@ public class JwtUtils {
         } catch (Exception e) {
             return true;
         }
+    }
+
+    public int obtenerVersionToken(String token){
+        Object valor = obtenerClaims(token).get("versionToken");
+        return valor == null ? 0 : ((Number) valor).intValue();
+
     }
 }

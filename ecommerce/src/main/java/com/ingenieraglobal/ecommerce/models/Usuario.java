@@ -59,6 +59,9 @@ public class Usuario {
     @Column(name = "token_expiracion")
     private LocalDateTime tokenExpiracion;
 
+    @Column(name = "version_token")
+    private int versionToken = 0;
+
     public Usuario() {
     }
 
@@ -174,6 +177,14 @@ public class Usuario {
     public void setTokenExpiracion(LocalDateTime tokenExpiracion){
         this.tokenExpiracion = tokenExpiracion;
 
+    }
+
+    public int getVersionToken(){
+        return versionToken;
+    }
+
+    public void setVersionToken(int versionToken){
+        this.versionToken = versionToken;
     }
 
 

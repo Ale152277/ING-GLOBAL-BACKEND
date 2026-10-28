@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.*;
 import com.ingenieraglobal.ecommerce.dtos.request.RegistroUsuarioRequest;
 import com.ingenieraglobal.ecommerce.dtos.response.ApiResponse;
 import com.ingenieraglobal.ecommerce.services.UsuarioService;
+import org.springframework.security.core.Authentication;
+import com.ingenieraglobal.ecommerce.dtos.UsuarioDTO;
+import com.ingenieraglobal.ecommerce.dtos.request.ActualizarPerfilRequest;
+import org.springframework.security.core.Authentication;
+import com.ingenieraglobal.ecommerce.dtos.request.CambiarContrasenaRequest;
+
 import jakarta.validation.*;
 
 @RestController
@@ -17,7 +23,6 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-
 
     @PostMapping("/registro/admin")
     public ResponseEntity<ApiResponse<String>> crearAdmin(
@@ -31,14 +36,44 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>>eliminarUsuario(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<String>> eliminarUsuario(@PathVariable Long id) {
         ApiResponse<String> response = usuarioService.eliminarUsuario(id);
-        if(response.isSuccess()){
+        if (response.isSuccess()) {
             return ResponseEntity.ok(response);
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-    
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UsuarioDTO>> obtenerMiPerfil(
+            Authentication authentication) {
+
+        Long usuarioId = Long.parseLong(authentication.getName());
+        UsuarioDTO perfil = usuarioService.obtenerMiPerfil(usuarioId);
+        return ResponseEntity.ok(ApiResponse.success(perfil));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UsuarioDTO>> actualizarMiPerfil(
+            Authentication authentication,
+            @Valid @RequestBody ActualizarPerfilRequest request) {
+
+        Long usuarioId = Long.parseLong(authentication.getName());
+        UsuarioDTO perfil = usuarioService.actualizarMiPerfil(usuarioId, request);
+
+        return ResponseEntity.ok(ApiResponse.success(perfil, "Perfil actualizado correctamente"));
+    }
+
+    @PutMapping("/me/contrasena")
+    public ResponseEntity<ApiResponse<Void>> cambiarContrasena(
+            Authentication authentication,
+            @Valid @RequestBody CambiarContrasenaRequest request) {
+        Long usuarioId = Long.parseLong(authentication.getName());
+
+        usuarioService.cambiarContrasena(usuarioId, request);
+
+        return ResponseEntity.ok(ApiResponse.<Void>success(null, "Contraseña actualizada correctamente"));
+    }
 
 }

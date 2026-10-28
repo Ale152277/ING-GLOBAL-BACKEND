@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
@@ -38,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 var usuario = usuarioRepository.findByEmail(email);
 
-                if (usuario.isPresent() && usuario.get().getEstado() == EstadoEnum.ACTIVO) {
+                if (usuario.isPresent() && usuario.get().getEstado() == EstadoEnum.ACTIVO
+                        && jwtUtils.obtenerVersionToken(jwt) == usuario.get().getVersionToken()) {
                     Usuario user = usuario.get();
                     List<GrantedAuthority> authorities = List
                             .of(new SimpleGrantedAuthority("ROLE_" + user.getRol().name()));
@@ -58,10 +60,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7); 
+            return bearerToken.substring(7);
         }
         return null;
     }
