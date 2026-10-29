@@ -15,10 +15,10 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "http://localhost:4200") 
+@CrossOrigin(origins = "http://localhost:4200")
 
 public class AuthController {
-    
+
     @Autowired
     private AuthService authService;
 
@@ -44,7 +44,7 @@ public class AuthController {
     }
 
 
-    // El usuario hace clic en el link del email → Angular llama este endpoint
+    // El usuario hace clic en el link del email y angular llama este endpoint
     @GetMapping("/verificar")
     public ResponseEntity <ApiResponse<String>> verificarEmail(@RequestParam String token){
         ApiResponse<String> response = authService.verificarEmail(token);
@@ -55,7 +55,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-    } 
+    }
 
 
     @PostMapping("/reenviar-verificacion")
@@ -72,6 +72,6 @@ public class AuthController {
 
 
 
-    
-    
+
+
 }
