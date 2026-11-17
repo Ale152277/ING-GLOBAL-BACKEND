@@ -47,6 +47,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGlobalException(Exception ex, WebRequest request) {
+        ex.printStackTrace();
         ApiResponse<String> response = ApiResponse.error("ERROR INTERNO DEL SERVIDOR");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
