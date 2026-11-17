@@ -109,7 +109,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200",
                 "https://ingenieriaglobalperu.com",
-                "https://www.ingenieriaglobalperu.com"));
+                "https://www.ingenieriaglobalperu.com",
+                "https://ing-global.pages.dev"
+            ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
