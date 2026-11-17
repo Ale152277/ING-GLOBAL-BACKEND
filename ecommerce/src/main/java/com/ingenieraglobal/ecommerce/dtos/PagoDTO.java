@@ -2,6 +2,8 @@ package com.ingenieraglobal.ecommerce.dtos;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 
 import com.ingenieraglobal.ecommerce.models.Pago;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoPagoEnum;
