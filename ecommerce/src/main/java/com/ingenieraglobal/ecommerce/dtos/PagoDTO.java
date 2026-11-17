@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-
 import com.ingenieraglobal.ecommerce.models.Pago;
 import com.ingenieraglobal.ecommerce.models.enums.EstadoPagoEnum;
 import com.ingenieraglobal.ecommerce.models.enums.MetodoPagoEnum;
@@ -20,7 +19,7 @@ public class PagoDTO {
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaComprobante;
     private LocalDateTime fechaPago;
-    private LocalDateTime fechaExpiracionPago;
+    private OffsetDateTime fechaExpiracionPago;
     private LocalDateTime fechaRevision;
 
     private boolean comprobanteEnviado;
@@ -35,7 +34,11 @@ public class PagoDTO {
         this.fechaCreacion = pago.getFechaCreacion();
         this.fechaComprobante = pago.getFechaComprobante();
         this.fechaPago = pago.getFechaPago();
-        this.fechaExpiracionPago = pago.getVenta().getFechaExpiracionPago();
+        LocalDateTime vencimiento = pago.getVenta().getFechaExpiracionPago();
+
+        this.fechaExpiracionPago = vencimiento == null
+                ? null
+                : vencimiento.atZone(ZoneId.systemDefault()).toOffsetDateTime();
         this.fechaRevision = pago.getFechaRevision();
         this.comprobanteEnviado = pago.getComprobanteReferencia() != null;
         this.motivoRechazo = pago.getMotivoRechazo();
@@ -73,7 +76,7 @@ public class PagoDTO {
         return fechaPago;
     }
 
-    public LocalDateTime getFechaExpiracionPago() {
+    public OffsetDateTime getFechaExpiracionPago() {
         return fechaExpiracionPago;
     }
 
