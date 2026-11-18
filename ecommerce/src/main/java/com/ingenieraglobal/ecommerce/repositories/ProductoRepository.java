@@ -49,6 +49,33 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
         @Query("""
                         SELECT p FROM Producto p
+                        LEFT JOIN p.categoria c
+                        LEFT JOIN p.marca m
+                        WHERE p.estado = :estado
+                        AND (:sinCategorias = true OR c.id IN :categoriaIds)
+                        AND (:sinMarcas = true OR m.id IN :marcaIds)
+                        AND (
+                            :texto IS NULL
+                            OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
+                            OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :texto, '%'))
+                        )
+                        AND (p.precio BETWEEN :precioMin AND :precioMax)
+                        AND (:soloStock = false OR p.stock > 0)
+                        """)
+        Page<Producto> filtrarCatalogo(
+                        @Param("estado") EstadoEnum estado,
+                        @Param("categoriaIds") List<Long> categoriaIds,
+                        @Param("marcaIds") List<Long> marcaIds,
+                        @Param("sinCategorias") boolean sinCategorias,
+                        @Param("sinMarcas") boolean sinMarcas,
+                        @Param("texto") String texto,
+                        @Param("precioMin") BigDecimal precioMin,
+                        @Param("precioMax") BigDecimal precioMax,
+                        @Param("soloStock") boolean soloStock,
+                        Pageable pageable);
+
+        @Query("""
+                        SELECT p FROM Producto p
                         WHERE (
                             :texto IS NULL
                             OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
@@ -62,14 +89,13 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
                         """)
 
         Page<Producto> filtrarParaAdmin(
-                @Param("texto") String texto,
-                @Param("precioMin") BigDecimal precioMin,
-                @Param("precioMax") BigDecimal precioMax,
-                @Param("stockMin") Integer stockMin,
-                @Param("stockMax") Integer stockMax,
-                @Param("estado") EstadoEnum estado,
-                Pageable pageable
-        );
+                        @Param("texto") String texto,
+                        @Param("precioMin") BigDecimal precioMin,
+                        @Param("precioMax") BigDecimal precioMax,
+                        @Param("stockMin") Integer stockMin,
+                        @Param("stockMax") Integer stockMax,
+                        @Param("estado") EstadoEnum estado,
+                        Pageable pageable);
 
         @Query("""
                              SELECT p FROM Producto p
