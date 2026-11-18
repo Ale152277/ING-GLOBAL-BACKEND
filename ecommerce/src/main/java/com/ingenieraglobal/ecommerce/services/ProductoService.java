@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.List;
 import com.ingenieraglobal.ecommerce.dtos.ProductoDTO;
 import com.ingenieraglobal.ecommerce.dtos.request.CrearProductoRequest;
 import com.ingenieraglobal.ecommerce.dtos.request.EditarProductoRequest;
@@ -63,6 +63,52 @@ public class ProductoService {
                 soloStock != null ? soloStock : false,
                 pageable).map(ProductoDTO::new);
     }
+
+    public Page<ProductoDTO> filtrarCatalogo(
+        List<Long> categoriaIds,
+        List<Long> marcaIds,
+        String texto,
+        BigDecimal precioMin,
+        BigDecimal precioMax,
+        Boolean soloStock,
+        int page,
+        int size,
+        String ordenar) {
+
+    boolean sinCategorias = categoriaIds == null || categoriaIds.isEmpty();
+    boolean sinMarcas = marcaIds == null || marcaIds.isEmpty();
+
+    List<Long> categoriasConsulta = sinCategorias
+            ? List.of(-1L)
+            : categoriaIds;
+
+    List<Long> marcasConsulta = sinMarcas
+            ? List.of(-1L)
+            : marcaIds;
+
+    String textoConsulta = (texto == null || texto.isBlank())
+            ? null
+            : texto.trim();
+
+    Pageable pageable = PageRequest.of(
+            page - 1,
+            size,
+            crearOrdenamiento(ordenar)
+    );
+
+    return productoRepository.filtrarCatalogo(
+            EstadoEnum.ACTIVO,
+            categoriasConsulta,
+            marcasConsulta,
+            sinCategorias,
+            sinMarcas,
+            textoConsulta,
+            precioMin != null ? precioMin : BigDecimal.ZERO,
+            precioMax != null ? precioMax : new BigDecimal("999999"),
+            soloStock != null && soloStock,
+            pageable
+    ).map(ProductoDTO::new);
+}
 
     public Page<ProductoDTO> buscar(String termino, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
